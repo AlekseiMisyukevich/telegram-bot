@@ -1,1 +1,1 @@
-web: sh target/bot.war
+worker: sh target/bot
