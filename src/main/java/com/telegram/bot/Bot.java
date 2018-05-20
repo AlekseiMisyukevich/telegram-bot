@@ -16,7 +16,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 public class Bot extends TelegramLongPollingBot {
 
     private final String TOKEN = "535311189:AAEg7cibGrM9H1FtgMKAJ86gze7dmNI_9KE";
-    private final String BOT_NAME = "teleinstabot";
+    private final String BOT_NAME = "roundgrambot";
 
     public void onUpdateReceived(Update update) {
 
