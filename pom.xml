@@ -85,7 +85,7 @@
             <assembleDirectory>target</assembleDirectory>
             <programs>
               <program>
-                <mainClass>com.telegram.bot</mainClass>
+                <mainClass>com.telegram.bot.App</mainClass>
                 <name>bot</name>
               </program>
             </programs>
