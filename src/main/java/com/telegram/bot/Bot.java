@@ -3,8 +3,10 @@ package com.telegram.bot;
 import com.telegram.MessageBuilder;
 import com.telegram.handler.NotifierHandler;
 import com.telegram.handler.RoundHandler;
+import org.telegram.telegrambots.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -42,96 +44,101 @@ public class Bot extends TelegramLongPollingBot {
     private ReentrantLock lock;
 
     public Bot() {
-
         this.scheduler = Executors.newScheduledThreadPool(2);
         this.notifierHandler = new NotifierHandler();
         this.roundHandler = new RoundHandler();
         this.msgBuilder = new MessageBuilder();
-
     }
 
     public void onUpdateReceived(Update update) {
-        // We check if the update has a message and the message has text
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            switch (update.getMessage().getText()) {
-                case "/start": {
-                    Long chatId = update.getMessage().getChatId();
+        if (update.hasMessage()) {
+            String msg = update.getMessage().getText();
+            long chatID = update.getMessage().getChatId();
+
+            sendMsg(msg, chatID);
+        } else if (update.hasCallbackQuery()) {
+            CallbackQuery query = update.getCallbackQuery();
+            String callData = query.getData();
+            long msgID = query.getMessage().getMessageId();
+            long chatID = query.getMessage().getChatId();
+            String username = query.getFrom().getUserName();
+
+            answerCallBack(callData, msgID, chatID, username);
+        }
+    }
+
+    public synchronized void sendMsg(String msg, Long chatId) {
+        switch (msg) {
+            case "/start": {
+                try {
+                    if (lock.tryLock()) {
+                        notifierHandler.createNotification(chatId);
+                    }
+                } finally {
+                    lock.unlock();
+                }
+                SendMessage message = new SendMessage().setChatId(chatId).setText(msgBuilder.greeting());
+                try {
+                    execute(message);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
+            case "/help": {
+                SendMessage message = new SendMessage().setChatId(chatId).setText(msgBuilder.getBuiltinCommands());
+                try {
+                    execute(message);
+                } catch (TelegramApiException e) {
+                    e.printStackTrace();
+                }
+            }
+            case "/round": {
+                SendMessage sendMsg = null;
+                if (roundHandler.getRound().isRoundOngoing()) {
+                    sendMsg = new SendMessage().setChatId(chatId).setText(msgBuilder.getRoundStatus(roundHandler.getRound().getIteration()));
+                } else if (roundHandler.getRound().isRegistrationOngoing()) {
+                    sendMsg = new SendMessage().setChatId(chatId).setText(msgBuilder.getInvitationMsg());
+                    InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+                    List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+                    List<InlineKeyboardButton> row = new ArrayList<>();
+                    InlineKeyboardButton button = new InlineKeyboardButton().setText("Click to engage").setCallbackData("chatID");
+                    row.add(button);
+                    rows.add(row);
+                    keyboardMarkup.setKeyboard(rows);
+                    sendMsg.setReplyMarkup(keyboardMarkup);
+                }
+                if (msg != null) {
+                    try {
+                        execute(sendMsg);
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+    }
+
+    public synchronized void answerCallBack(String callData, Long msgID, Long chatID, String username) {
+        switch (callData) {
+            case "chatID": {
+                EditMessageText newMessage = null;
+                if (roundHandler.getRound().isRegistrationOngoing()) {
                     try {
                         if (lock.tryLock()) {
-                            notifierHandler.createNotification(chatId);
+                            newMessage = new EditMessageText().setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationMessage());
+                            roundHandler.addUser(chatID, username);
                         }
                     } finally {
                         lock.unlock();
                     }
-                    SendMessage message = new SendMessage().setChatId(chatId).setText(msgBuilder.greeting());
+                } else {
+                    newMessage = new EditMessageText().setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationEnded());
+                }
+                if (newMessage != null) {
                     try {
-                        execute(message);
+                        execute(newMessage);
                     } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-                }
-                case "/help": {
-                    Long chatId = update.getMessage().getChatId();
-                    SendMessage message = new SendMessage().setChatId(chatId).setText(msgBuilder.getBuiltinCommands());
-                    try {
-                        execute(message);
-                    } catch (TelegramApiException e) {
-                        e.printStackTrace();
-                    }
-                }
-                case "/round": {
-                    Long chatId = update.getMessage().getChatId();
-                    SendMessage msg = null;
-                    if (roundHandler.getRound().isRoundOngoing()) {
-                        msg = new SendMessage().setChatId(chatId).setText(msgBuilder.getRoundStatus(roundHandler.getRound().getIteration()));
-                    }
-                    else if (roundHandler.getRound().isRegistrationOngoing()) {
-                        msg = new SendMessage().setChatId(chatId).setText(msgBuilder.getInvitationMsg());
-                        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-                        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-                        List<InlineKeyboardButton> row = new ArrayList<>();
-                        InlineKeyboardButton button = new InlineKeyboardButton().setText("Click to engage").setCallbackData("chatID");
-                        row.add(button);
-                        rows.add(row);
-                        keyboardMarkup.setKeyboard(rows);
-                        msg.setReplyMarkup(keyboardMarkup);
-                    }
-                    if (msg != null) {
-                        try {
-                            execute(msg);
-                        } catch (TelegramApiException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-            }
-
-        } else if (update.hasCallbackQuery()) {
-            String callData = update.getCallbackQuery().getData();
-            long msgID = update.getCallbackQuery().getMessage().getMessageId();
-            long chatID = update.getCallbackQuery().getMessage().getMessageId();
-            String username = update.getMessage().getChat().getUserName();
-            switch (callData) {
-                case "chatID": {
-                    EditMessageText newMessage = null;
-                    if (roundHandler.getRound().isRegistrationOngoing()) {
-                        try {
-                            if (lock.tryLock()) {
-                                newMessage = new EditMessageText().setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationMessage());
-                                roundHandler.addUser(chatID, username);
-                            }
-                        } finally {
-                            lock.unlock();
-                        }
-                    } else {
-                        newMessage = new EditMessageText().setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationEnded());
-                    }
-                    if (newMessage != null) {
-                        try {
-                            execute(newMessage);
-                        } catch (TelegramApiException e) {
-                            throw new RuntimeException(e);
-                        }
+                        throw new RuntimeException(e);
                     }
                 }
             }
