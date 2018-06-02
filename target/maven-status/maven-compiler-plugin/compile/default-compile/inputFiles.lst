@@ -1,2 +1,6 @@
+/root/IdeaProjects/bot/src/main/java/com/telegram/MessageBuilder.java
+/root/IdeaProjects/bot/src/main/java/com/telegram/model/Round.java
+/root/IdeaProjects/bot/src/main/java/com/telegram/handler/RoundHandler.java
+/root/IdeaProjects/bot/src/main/java/com/telegram/api/App.java
 /root/IdeaProjects/bot/src/main/java/com/telegram/bot/Bot.java
-/root/IdeaProjects/bot/src/main/java/com/telegram/bot/App.java
+/root/IdeaProjects/bot/src/main/java/com/telegram/handler/NotifierHandler.java

@@ -1,2 +1,6 @@
+com/telegram/model/Round.class
+com/telegram/handler/NotifierHandler.class
+com/telegram/handler/RoundHandler.class
+com/telegram/api/App.class
 com/telegram/bot/Bot.class
-com/telegram/bot/App.class
+com/telegram/MessageBuilder.class
