@@ -7,7 +7,7 @@
   <groupId>com.telegram</groupId>
   <artifactId>bot</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
 
   <name>bot</name>
 
@@ -75,15 +75,6 @@
           <version>2.8.2</version>
         </plugin>
 
-        <!--<plugin>-->
-          <!--<groupId>com.heroku.sdk</groupId>-->
-          <!--<artifactId>heroku-maven-plugin</artifactId>-->
-          <!--<version>2.0.3</version>-->
-          <!--<configuration>-->
-            <!--<warFile> target/bot.war </warFile>-->
-          <!--</configuration>-->
-        <!--</plugin>-->
-
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>appassembler-maven-plugin</artifactId>
@@ -99,7 +90,6 @@
             </programs>
 
           </configuration>
-
           <executions>
             <execution>
               <phase>package</phase>

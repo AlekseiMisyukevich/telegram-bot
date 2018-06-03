@@ -1,1 +1,1 @@
-worker: sh target/bot
+web: java -jar target/bot.jar
