@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
-Class-Path: /target/bot.jar
+Class-Path: /opt/jdk1.8.0_171/jre/bin
 Main-Class: com.telegram.api.App
 
