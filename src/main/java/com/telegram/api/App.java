@@ -5,7 +5,6 @@ import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.*;
 
-
 public class App {
 
     public static void main(String[] args) {
