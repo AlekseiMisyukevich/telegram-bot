@@ -22,7 +22,7 @@ public class MessageBuilder {
         builder = new StringBuilder();
         builder.append("List of builtin commands");
         builder.append(LINE_SEPARATOR);
-        builder.append("/round - check round status ");
+        builder.append("/round - check round status and your engagment ");
         return builder.toString();
     }
 
@@ -58,64 +58,69 @@ public class MessageBuilder {
         return builder.toString();
     }
 
-    public String getRoundStatus(int iteration) {
+    public String getRoundStatus() {
+        final LocalDateTime time = getStartOfRound();
+        final LocalDateTime now = LocalDateTime.now();
         builder = new StringBuilder();
+        builder.append("Server time ");
+        builder.append(now);
+        builder.append(LINE_SEPARATOR);
+        builder.append("Round starts at ");
+        builder.append(time);
+        builder.append(LINE_SEPARATOR);
+        builder.append("You will be notified to register at ");
+        builder.append(time.minusMinutes(30));
         return builder.toString();
     }
 
     private LocalDateTime getStartOfRound() {
-        LocalDateTime time = null;
         switch (round.getIteration()) {
             case 1: {
-                time = LocalDateTime.now();
-                time.withHour(00).withMinute(00);
-                break;
+                LocalDateTime time = LocalDateTime.now();
+                return time.withHour(00).withMinute(00).withSecond(00);
             }
 
             case 2: {
-                time = LocalDateTime.now();
-                time.withHour(3).withMinute(00);
-                break;
+                LocalDateTime time = LocalDateTime.now();
+                return time.withHour(3).withMinute(00).withSecond(00);
             }
 
             case 3: {
-                time = LocalDateTime.now();
-                time.withHour(6).withMinute(00);
-                break;
+                LocalDateTime time = LocalDateTime.now();
+                return time.withHour(6).withMinute(00).withSecond(00);
             }
 
             case 4: {
-                time = LocalDateTime.now();
-                time.withHour(9).withMinute(00);
-                break;
+                LocalDateTime time = LocalDateTime.now();
+                return time.withHour(9).withMinute(00).withSecond(00);
             }
 
             case 5: {
-                time = LocalDateTime.now();
-                time.withHour(12).withMinute(00);
-                break;
+                LocalDateTime time = LocalDateTime.now();
+                return time.withHour(12).withMinute(00).withSecond(00);
             }
+
             case 6: {
-                time = LocalDateTime.now();
-                time.withHour(15).withMinute(00);
-                break;
+                LocalDateTime time = LocalDateTime.now();
+                return time.withHour(15).withMinute(00).withSecond(00);
             }
+
             case 7: {
-                time = LocalDateTime.now();
-                time.withHour(18).withMinute(00);
-                break;
+                LocalDateTime time = LocalDateTime.now();
+                return time.withHour(18).withMinute(00).withSecond(00);
             }
+
             case 8: {
-                time = LocalDateTime.now();
-                time.withHour(21).withMinute(00);
-                break;
+                LocalDateTime time = LocalDateTime.now();
+                return time.withHour(21).withMinute(00).withSecond(00);
             }
         }
-        return time;
+
+        return LocalDateTime.now();
     }
 
     public MessageBuilder() {
-        this.round = round;
+        this.round = new Round();
     }
 
 }

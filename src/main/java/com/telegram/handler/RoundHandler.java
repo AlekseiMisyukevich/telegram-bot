@@ -9,7 +9,6 @@ public class RoundHandler {
 
     private HashMap<Long, String> chatAndUserIds;
     private Round round;
-    private ArrayList<SendMessage> messages;
     private final String LINE_SEPARATOR = System.lineSeparator();
 
     public RoundHandler( ) {
@@ -26,14 +25,13 @@ public class RoundHandler {
     }
 
     public Iterator<SendMessage> messageIterator() {
-        Iterator<SendMessage> iter = null;
-        messages = new ArrayList<>();
+        final ArrayList<SendMessage> messages;messages = new ArrayList<>();
 
         for (Map.Entry<Long, String> id : chatAndUserIds.entrySet()) {
             SendMessage newMessage = new SendMessage().setChatId(id.getKey()).setText(createUsernamesList());
             messages.add(newMessage);
         }
-        return iter = messages.iterator();
+        return messages.iterator();
     }
 
     private String createUsernamesList() {
