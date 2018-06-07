@@ -116,6 +116,7 @@
             <descriptorRefs>
               <descriptorRef>jar-with-dependencies</descriptorRef>
             </descriptorRefs>
+            <finalName>bot</finalName>
           </configuration>
           <executions>
             <execution>

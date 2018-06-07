@@ -147,7 +147,6 @@ public class MessageBuilder {
                 final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(22).withMinute(00).withSecond(00);
             }
-
         }
 
         return LocalDateTime.now();
