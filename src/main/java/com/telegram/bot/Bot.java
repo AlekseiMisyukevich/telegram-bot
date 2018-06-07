@@ -31,8 +31,8 @@ public class Bot extends TelegramLongPollingBot {
 
     private final String TOKEN = "608768766:AAHk7FUNTIerYiCsYVsThpqAVog5ALRlLHU";
     private final String BOT_NAME = "doublegrambot";
-    private final long REGISTRATION_DELAY = 3 * 60 * 60;
-    private final long ROUND_DELAY = 3 * 60 * 60;
+    private final long REGISTRATION_DELAY = 2 * 60 * 60;
+    private final long ROUND_DELAY = 2 * 60 * 60;
 
     private Bot bot;
     private NotifierHandler notifierHandler;
@@ -185,7 +185,7 @@ public class Bot extends TelegramLongPollingBot {
             roundHandler.getRound().setRegistrationOngoing(false);
             int iteration = 1;
             notifierHandler.getRound().setRoundOngoing(true);
-            if (iteration == 8) {
+            if (iteration == 13) {
                 iteration = 1;
                 roundHandler.getRound().setIteration(iteration);
             } else {

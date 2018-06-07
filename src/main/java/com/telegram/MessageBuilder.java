@@ -82,38 +82,62 @@ public class MessageBuilder {
 
             case 2: {
                 LocalDateTime time = LocalDateTime.now();
-                return time.withHour(3).withMinute(00).withSecond(00);
+                return time.withHour(2).withMinute(00).withSecond(00);
             }
 
             case 3: {
                 LocalDateTime time = LocalDateTime.now();
-                return time.withHour(6).withMinute(00).withSecond(00);
+                return time.withHour(4).withMinute(00).withSecond(00);
             }
 
             case 4: {
                 LocalDateTime time = LocalDateTime.now();
-                return time.withHour(9).withMinute(00).withSecond(00);
+                return time.withHour(6).withMinute(00).withSecond(00);
             }
 
             case 5: {
                 LocalDateTime time = LocalDateTime.now();
-                return time.withHour(12).withMinute(00).withSecond(00);
+                return time.withHour(8).withMinute(00).withSecond(00);
             }
 
             case 6: {
                 LocalDateTime time = LocalDateTime.now();
-                return time.withHour(15).withMinute(00).withSecond(00);
+                return time.withHour(10).withMinute(00).withSecond(00);
             }
 
             case 7: {
                 LocalDateTime time = LocalDateTime.now();
-                return time.withHour(18).withMinute(00).withSecond(00);
+                return time.withHour(12).withMinute(00).withSecond(00);
             }
 
             case 8: {
                 LocalDateTime time = LocalDateTime.now();
-                return time.withHour(21).withMinute(00).withSecond(00);
+                return time.withHour(14).withMinute(00).withSecond(00);
             }
+
+
+            case 9: {
+                LocalDateTime time = LocalDateTime.now();
+                return time.withHour(16).withMinute(00).withSecond(00);
+            }
+
+
+            case 10: {
+                LocalDateTime time = LocalDateTime.now();
+                return time.withHour(18).withMinute(00).withSecond(00);
+            }
+
+
+            case 11: {
+                LocalDateTime time = LocalDateTime.now();
+                return time.withHour(20).withMinute(00).withSecond(00);
+            }
+
+            case 12: {
+                LocalDateTime time = LocalDateTime.now();
+                return time.withHour(22).withMinute(00).withSecond(00);
+            }
+
         }
 
         return LocalDateTime.now();
