@@ -3,12 +3,14 @@ package com.telegram;
 import com.telegram.model.Round;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 public class MessageBuilder {
 
     private StringBuilder builder;
     private final String LINE_SEPARATOR = System.lineSeparator();
     private Round round;
+    final ZoneId zone;
 
     public String greeting() {
         builder = new StringBuilder();
@@ -32,6 +34,8 @@ public class MessageBuilder {
         builder.append("You have registed");
         builder.append(LINE_SEPARATOR);
         builder.append("Server time -> " + time);
+        builder.append(" ");
+        builder.append(zone.toString());
         builder.append(LINE_SEPARATOR);
         builder.append("Round start at: ");
         builder.append( getStartOfRound() );
@@ -52,9 +56,13 @@ public class MessageBuilder {
         builder.append("Round has already started.");
         builder.append(LINE_SEPARATOR);
         builder.append("Server time -> " + time);
+        builder.append(" ");
+        builder.append(zone.toString());
         builder.append(LINE_SEPARATOR);
         builder.append("Next registration begins at: ");
         builder.append(getStartOfRound().minusMinutes(30).toString());
+        builder.append(" ");
+        builder.append(zone.toString());
         return builder.toString();
     }
 
@@ -64,6 +72,8 @@ public class MessageBuilder {
         builder = new StringBuilder();
         builder.append("Server time ");
         builder.append(now);
+        builder.append(" ");
+        builder.append(zone.toString());
         builder.append(LINE_SEPARATOR);
         builder.append("Round starts at ");
         builder.append(time);
@@ -76,65 +86,65 @@ public class MessageBuilder {
     private LocalDateTime getStartOfRound() {
         switch (round.getIteration()) {
             case 1: {
-                LocalDateTime time = LocalDateTime.now();
+                final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(00).withMinute(00).withSecond(00);
             }
 
             case 2: {
-                LocalDateTime time = LocalDateTime.now();
+                final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(2).withMinute(00).withSecond(00);
             }
 
             case 3: {
-                LocalDateTime time = LocalDateTime.now();
+                final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(4).withMinute(00).withSecond(00);
             }
 
             case 4: {
-                LocalDateTime time = LocalDateTime.now();
+                final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(6).withMinute(00).withSecond(00);
             }
 
             case 5: {
-                LocalDateTime time = LocalDateTime.now();
+                final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(8).withMinute(00).withSecond(00);
             }
 
             case 6: {
-                LocalDateTime time = LocalDateTime.now();
+                final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(10).withMinute(00).withSecond(00);
             }
 
             case 7: {
-                LocalDateTime time = LocalDateTime.now();
+                final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(12).withMinute(00).withSecond(00);
             }
 
             case 8: {
-                LocalDateTime time = LocalDateTime.now();
+                final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(14).withMinute(00).withSecond(00);
             }
 
 
             case 9: {
-                LocalDateTime time = LocalDateTime.now();
+                final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(16).withMinute(00).withSecond(00);
             }
 
 
             case 10: {
-                LocalDateTime time = LocalDateTime.now();
+                final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(18).withMinute(00).withSecond(00);
             }
 
 
             case 11: {
-                LocalDateTime time = LocalDateTime.now();
+                final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(20).withMinute(00).withSecond(00);
             }
 
             case 12: {
-                LocalDateTime time = LocalDateTime.now();
+                final LocalDateTime time = LocalDateTime.now();
                 return time.withHour(22).withMinute(00).withSecond(00);
             }
 
@@ -145,6 +155,7 @@ public class MessageBuilder {
 
     public MessageBuilder() {
         this.round = new Round();
+        this.zone = ZoneId.systemDefault();
     }
 
 }
