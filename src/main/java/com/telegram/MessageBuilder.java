@@ -33,12 +33,12 @@ public class MessageBuilder {
         builder = new StringBuilder();
         builder.append("You have registed");
         builder.append(LINE_SEPARATOR);
-        builder.append("Server time -> " + time);
+        builder.append("Server time : " + time.withNano(0).toString().replace("T", " "));
         builder.append(" ");
         builder.append(zone.toString());
         builder.append(LINE_SEPARATOR);
         builder.append("Round start at: ");
-        builder.append( getStartOfRound() );
+        builder.append( getStartOfRound().withNano(0).toString().replace("T", " ") );
         return builder.toString();
     }
 
@@ -55,31 +55,31 @@ public class MessageBuilder {
         builder = new StringBuilder();
         builder.append("Round has already started.");
         builder.append(LINE_SEPARATOR);
-        builder.append("Server time -> " + time);
+        builder.append("Server time : " + time.withNano(0).toString().replace("T", " "));
         builder.append(" ");
         builder.append(zone.toString());
         builder.append(LINE_SEPARATOR);
         builder.append("Next registration begins at: ");
-        builder.append(getStartOfRound().minusMinutes(30).toString());
+        builder.append(getStartOfRound().minusMinutes(30).withNano(0).toString().replace("T", " "));
         builder.append(" ");
         builder.append(zone.toString());
         return builder.toString();
     }
 
     public String getRoundStatus() {
-        final LocalDateTime time = getStartOfRound();
-        final LocalDateTime now = LocalDateTime.now();
+        LocalDateTime time = getStartOfRound();
+        LocalDateTime now = LocalDateTime.now();
         builder = new StringBuilder();
-        builder.append("Server time ");
-        builder.append(now);
+        builder.append("Server time: ");
+        builder.append(now.withNano(0).toString().replace("T", " "));
         builder.append(" ");
         builder.append(zone.toString());
         builder.append(LINE_SEPARATOR);
-        builder.append("Round starts at ");
-        builder.append(time);
+        builder.append("Round starts at: ");
+        builder.append(time.withNano(0).toString().replace("T", " "));
         builder.append(LINE_SEPARATOR);
-        builder.append("You will be notified to register at ");
-        builder.append(time.minusMinutes(30));
+        builder.append("You will be notified to register at: ");
+        builder.append(time.withNano(0).minusMinutes(30).toString().replace("T", " "));
         return builder.toString();
     }
 
@@ -87,7 +87,7 @@ public class MessageBuilder {
         switch (round.getIteration()) {
             case 1: {
                 final LocalDateTime time = LocalDateTime.now();
-                return time.withHour(00).withMinute(00).withSecond(00);
+                return time.withHour(00).withMinute(00).withSecond(00).plusDays(1);
             }
 
             case 2: {
