@@ -12,7 +12,7 @@ public class RoundHandler {
     private final String LINE_SEPARATOR = System.lineSeparator();
 
     public RoundHandler( ) {
-        this.chatAndUserIds = new HashMap<Long, String>();
+        this.chatAndUserIds = new HashMap<>();
         this.round = new Round();
     }
 
@@ -22,6 +22,10 @@ public class RoundHandler {
 
     public void addUser(Long id, String username) {
         chatAndUserIds.put(id, "@" + username);
+    }
+
+    public boolean isUserRegistered(Long key) {
+        return chatAndUserIds.containsKey(key);
     }
 
     public Iterator<SendMessage> messageIterator() {
@@ -41,5 +45,9 @@ public class RoundHandler {
             builder.append(LINE_SEPARATOR);
         }
         return builder.toString();
+    }
+
+    public HashMap<Long, String> getChatAndUserIds() {
+        return chatAndUserIds;
     }
 }

@@ -33,6 +33,7 @@ public class Bot extends TelegramLongPollingBot {
     private final String BOT_NAME = "doublegrambot";
     private final long REGISTRATION_DELAY = 2 * 60 * 60;
     private final long ROUND_DELAY = 2 * 60 * 60;
+    private int iteration;
 
     private Bot bot;
     private NotifierHandler notifierHandler;
@@ -58,7 +59,6 @@ public class Bot extends TelegramLongPollingBot {
             if (!msg.isEmpty()) {
                 sendMsg(msg, chatID);
             }
-
         } else if (update.hasCallbackQuery()) {
             CallbackQuery query = update.getCallbackQuery();
             String callData = query.getData();
@@ -133,24 +133,35 @@ public class Bot extends TelegramLongPollingBot {
     public synchronized void answerCallBack(String callData, Long msgID, Long chatID, String username) {
         switch (callData) {
             case "chatID": {
-                if (roundHandler.getRound().isRegistrationOngoing()) {
+                if (roundHandler.getRound().isRegistrationOngoing() && !roundHandler.isUserRegistered(chatID)) {
                     EditMessageText newMessage = new EditMessageText();
                     newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationMessage());
                     try {
                         if (lock.tryLock()) {
                             roundHandler.addUser(chatID, username);
-                            try {
-                                execute(newMessage);
-                            } catch (TelegramApiException e) {
-                                throw new RuntimeException(e);
-                            }
+                        }
+                        try {
+                            execute(newMessage);
+                        } catch (TelegramApiException e) {
+                            throw new RuntimeException(e);
                         }
                     } finally {
                         lock.unlock();
                         break;
                     }
-
-                } else if ( roundHandler.getRound().isRoundOngoing() ) {
+                }
+                else if (roundHandler.getRound().isRegistrationOngoing() && roundHandler.isUserRegistered(chatID)) {
+                    EditMessageText newMessage = new EditMessageText();
+                    newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.alreadyRegistered());
+                    try {
+                        execute(newMessage);
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    } finally {
+                        break;
+                    }
+                }
+                else if ( roundHandler.getRound().isRoundOngoing() ) {
                     EditMessageText newMessage = new EditMessageText();
                     newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationEnded());
 
@@ -158,8 +169,9 @@ public class Bot extends TelegramLongPollingBot {
                         execute(newMessage);
                     } catch (TelegramApiException e) {
                         throw new RuntimeException(e);
+                    } finally {
+                        break;
                     }
-                    break;
                 }
             }
         }
@@ -188,15 +200,15 @@ public class Bot extends TelegramLongPollingBot {
         }, getZonedRegistrationStartTime(), REGISTRATION_DELAY, TimeUnit.SECONDS);
 
         scheduler.scheduleWithFixedDelay(() -> {
+            this.iteration = 1;
             roundHandler.getRound().setRegistrationOngoing(false);
-            int iteration = 1;
             notifierHandler.getRound().setRoundOngoing(true);
-            if (iteration == 13) {
-                iteration = 1;
+            if (this.iteration == 13) {
+                this.iteration = 1;
                 roundHandler.getRound().setIteration(iteration);
             } else {
                 roundHandler.getRound().setIteration(iteration);
-                iteration++;
+                this.iteration++;
             }
             Iterator<SendMessage> iter = roundHandler.messageIterator();
 
@@ -205,6 +217,8 @@ public class Bot extends TelegramLongPollingBot {
                     execute(iter.next());
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
+                } finally {
+                    roundHandler.getChatAndUserIds().clear();
                 }
             }
         }, getZonedRoundStartTime(), ROUND_DELAY, TimeUnit.HOURS);

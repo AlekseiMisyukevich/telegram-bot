@@ -1,1 +1,1 @@
-web: java -jar target/bot.jar
+worker: java -jar bot-jar-with-dependencies.jar
