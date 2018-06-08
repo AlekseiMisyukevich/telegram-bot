@@ -31,8 +31,8 @@ public class Bot extends TelegramLongPollingBot {
 
     private final String TOKEN = "608768766:AAHk7FUNTIerYiCsYVsThpqAVog5ALRlLHU";
     private final String BOT_NAME = "doublegrambot";
-    private final long REGISTRATION_DELAY = 3 * 60 * 60;
-    private final long ROUND_DELAY = 3 * 60 * 60;
+    private final long REGISTRATION_DELAY = 2 * 60 * 60;
+    private final long ROUND_DELAY = 2 * 60 * 60;
 
     private Bot bot;
     private NotifierHandler notifierHandler;
@@ -55,7 +55,7 @@ public class Bot extends TelegramLongPollingBot {
             String msg = update.getMessage().getText();
             long chatID = update.getMessage().getChatId();
 
-            if (!msg.isEmpty() && chatID != 0) {
+            if (!msg.isEmpty()) {
                 sendMsg(msg, chatID);
             }
 
@@ -65,7 +65,7 @@ public class Bot extends TelegramLongPollingBot {
             long msgID = query.getMessage().getMessageId();
             long chatID = query.getMessage().getChatId();
             String username = query.getFrom().getUserName();
-            if (!callData.isEmpty() && !username.isEmpty() && msgID != 0 && chatID != 0){
+            if (!callData.isEmpty() && !username.isEmpty()){
                 answerCallBack(callData, msgID, chatID, username);
             }
         }
@@ -131,35 +131,41 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     public synchronized void answerCallBack(String callData, Long msgID, Long chatID, String username) {
-        EditMessageText newMessage = new EditMessageText();
         switch (callData) {
             case "chatID": {
                 if (roundHandler.getRound().isRegistrationOngoing()) {
+                    EditMessageText newMessage = new EditMessageText();
+                    newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationMessage());
                     try {
                         if (lock.tryLock()) {
-                            newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationMessage());
                             roundHandler.addUser(chatID, username);
+                            try {
+                                execute(newMessage);
+                            } catch (TelegramApiException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     } finally {
                         lock.unlock();
+                        break;
                     }
-                } else {
-                    newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationEnded());
-                }
-            }
-        }
 
-        if (!newMessage.getText().isEmpty()) {
-            try {
-                execute(newMessage);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
+                } else if ( roundHandler.getRound().isRoundOngoing() ) {
+                    EditMessageText newMessage = new EditMessageText();
+                    newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationEnded());
+
+                    try {
+                        execute(newMessage);
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                }
             }
         }
     }
 
-    @PostConstruct
-    private void execute() {
+    public void execute() {
         scheduler.scheduleWithFixedDelay(() -> {
             roundHandler.getRound().setRegistrationOngoing(true);
             notifierHandler.getRound().setRoundOngoing(false);
