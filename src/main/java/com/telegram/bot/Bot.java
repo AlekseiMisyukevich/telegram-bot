@@ -158,8 +158,7 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    @PostConstruct
-    private void execute() {
+    public void execute() {
         scheduler.scheduleWithFixedDelay(() -> {
             roundHandler.getRound().setRegistrationOngoing(true);
             notifierHandler.getRound().setRoundOngoing(false);
@@ -215,11 +214,11 @@ public class Bot extends TelegramLongPollingBot {
         return TOKEN;
     }
 
-    private long getZonedRegistrationStartTime() {
+    private final long getZonedRegistrationStartTime() {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(17).withMinute(30).withSecond(00).withNano(00);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(19).withMinute(30).withSecond(00).withNano(00);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -227,11 +226,11 @@ public class Bot extends TelegramLongPollingBot {
         return duration.getSeconds();
     }
 
-    private long getZonedRoundStartTime() {
+    private final long getZonedRoundStartTime() {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(18).withMinute(00).withSecond(00).withNano(00);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(20).withMinute(00).withSecond(00).withNano(00);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
