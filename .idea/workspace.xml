@@ -8,8 +8,8 @@
   <component name="ChangeListManager">
     <list default="true" id="dc98bec2-a5f8-43dc-8150-73d7dcfc1407" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot-jar-with-dependencies.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/telegram/MessageBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/telegram/MessageBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/telegram/bot/Bot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/telegram/bot/Bot.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/telegram/model/Round.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/telegram/model/Round.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -39,23 +39,22 @@
       <file leaf-file-name="App.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/api/App.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" column="55" selection-start-line="11" selection-start-column="55" selection-end-line="11" selection-end-column="55" />
+            <state relative-caret-position="75">
+              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Bot.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Bot.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/bot/Bot.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="220" column="66" selection-start-line="220" selection-start-column="66" selection-end-line="220" selection-end-column="66" />
+            <state relative-caret-position="173">
+              <caret line="165" column="12" selection-start-line="165" selection-start-column="12" selection-end-line="165" selection-end-column="12" />
               <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#8362#8363#0" expanded="true" />
-                <element signature="e#8393#8394#0" expanded="true" />
-                <element signature="e#8442#8443#0" expanded="true" />
-                <element signature="e#8470#8471#0" expanded="true" />
+                <element signature="e#8466#8467#0" expanded="true" />
+                <element signature="e#8497#8498#0" expanded="true" />
+                <element signature="e#8546#8547#0" expanded="true" />
+                <element signature="e#8574#8575#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -73,7 +72,7 @@
       <file leaf-file-name="NotifierHandler.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/handler/NotifierHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
+            <state relative-caret-position="135">
               <caret line="12" column="28" selection-start-line="12" selection-start-column="28" selection-end-line="12" selection-end-column="28" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -85,7 +84,7 @@
       <file leaf-file-name="RoundHandler.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/handler/RoundHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
+            <state relative-caret-position="285">
               <caret line="26" column="52" selection-start-line="26" selection-start-column="52" selection-end-line="26" selection-end-column="52" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -97,14 +96,8 @@
       <file leaf-file-name="Round.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/model/Round.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="30" column="4" selection-start-line="30" selection-start-column="4" selection-end-line="30" selection-end-column="4" />
-              <folding>
-                <element signature="e#696#697#0" expanded="true" />
-                <element signature="e#733#734#0" expanded="true" />
-                <element signature="e#790#791#0" expanded="true" />
-                <element signature="e#835#836#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="135">
+              <caret line="9" column="27" selection-start-line="9" selection-start-column="27" selection-end-line="9" selection-end-column="27" />
             </state>
           </provider>
         </entry>
@@ -121,7 +114,7 @@
       <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="503">
+            <state relative-caret-position="1890">
               <caret line="126" column="22" selection-start-line="126" selection-start-column="22" selection-end-line="126" selection-end-column="22" />
             </state>
           </provider>
@@ -136,11 +129,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MessageBuilder.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="MessageBuilder.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/MessageBuilder.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="27" column="34" selection-start-line="27" selection-start-column="34" selection-end-line="27" selection-end-column="34" />
+            <state relative-caret-position="570">
+              <caret line="134" column="20" selection-start-line="134" selection-start-column="17" selection-end-line="134" selection-end-column="20" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -183,14 +176,14 @@
         <option value="$PROJECT_DIR$/src/main/java/com/telegram/assets/MessageBuilder.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/telegram/handler/NotifierHandler.java" />
         <option value="$PROJECT_DIR$/src/main/webapp/WEB-INF/META-INF/MANIFEST.MF" />
-        <option value="$PROJECT_DIR$/src/main/java/com/telegram/api/App.java" />
         <option value="$PROJECT_DIR$/src/main/webapp/WEB-INF/MANIFEST.MF" />
         <option value="$PROJECT_DIR$/src/main/java/com/telegram/handler/RoundHandler.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/telegram/model/Round.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/telegram/bot/Bot.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/Procfile" />
         <option value="$PROJECT_DIR$/src/main/java/com/telegram/MessageBuilder.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/telegram/model/Round.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/telegram/api/App.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/telegram/bot/Bot.java" />
       </list>
     </option>
   </component>
@@ -228,6 +221,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -268,6 +263,15 @@
               <item name="main" type="462c0819:PsiDirectoryNode" />
               <item name="java" type="462c0819:PsiDirectoryNode" />
               <item name="telegram" type="462c0819:PsiDirectoryNode" />
+              <item name="api" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="bot" type="b2602c69:ProjectViewProjectNode" />
+              <item name="bot" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="java" type="462c0819:PsiDirectoryNode" />
+              <item name="telegram" type="462c0819:PsiDirectoryNode" />
               <item name="bot" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -288,18 +292,11 @@
               <item name="telegram" type="462c0819:PsiDirectoryNode" />
               <item name="model" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="bot" type="b2602c69:ProjectViewProjectNode" />
-              <item name="bot" type="462c0819:PsiDirectoryNode" />
-              <item name="target" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
       <pane id="PackagesPane" />
-      <pane id="Scope" />
-      <pane id="AndroidView" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -422,12 +419,13 @@
       <workItem from="1528045210656" duration="11114000" />
       <workItem from="1528115640279" duration="8188000" />
       <workItem from="1528135259183" duration="5437000" />
-      <workItem from="1528239247909" duration="34027000" />
+      <workItem from="1528239247909" duration="35335000" />
+      <workItem from="1528454255803" duration="5699000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="247215000" />
+    <option name="totallyTimeSpent" value="254222000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -440,6 +438,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="27" width="1920" height="1053" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="right" id="Cargo" order="3" weight="0.32959402" />
@@ -477,9 +476,8 @@
     <layout-to-restore>
       <window_info id="Designer" order="2" />
       <window_info anchor="right" id="Palette" order="3" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32894737" />
       <window_info id="Image Layers" order="3" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32894737" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" id="Cargo" order="4" weight="0.32959402" />
@@ -493,20 +491,21 @@
       <window_info anchor="bottom" id="Messages" order="9" weight="0.21271929" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.27631578" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49932885" visible="true" weight="0.18643162" />
       <window_info anchor="bottom" id="Java Enterprise" order="10" weight="0.32894737" />
       <window_info anchor="bottom" id="Database Changes" order="11" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="12" />
       <window_info anchor="right" id="Maven Projects" order="6" weight="0.32959402" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49932885" visible="true" weight="0.18643162" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Database" order="7" weight="0.32959402" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info id="Web" order="7" side_tool="true" />
       <window_info anchor="right" id="Palette&#9;" order="8" />
       <window_info anchor="right" id="Theme Preview" order="9" />
       <window_info id="Structure" order="1" sideWeight="0.50067115" side_tool="true" weight="0.21100427" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="right" id="Bean Validation" order="10" weight="0.32959402" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
     </layout-to-restore>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -552,12 +551,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="9" column="41" selection-start-line="9" selection-start-column="41" selection-end-line="9" selection-end-column="41" />
-          <folding>
-            <element signature="e#696#697#0" expanded="true" />
-            <element signature="e#733#734#0" expanded="true" />
-            <element signature="e#790#791#0" expanded="true" />
-            <element signature="e#835#836#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -566,11 +559,10 @@
         <state relative-caret-position="1530">
           <caret line="114" selection-start-line="114" selection-end-line="114" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#8362#8363#0" expanded="true" />
-            <element signature="e#8393#8394#0" expanded="true" />
-            <element signature="e#8442#8443#0" expanded="true" />
-            <element signature="e#8470#8471#0" expanded="true" />
+            <element signature="e#8466#8467#0" expanded="true" />
+            <element signature="e#8497#8498#0" expanded="true" />
+            <element signature="e#8546#8547#0" expanded="true" />
+            <element signature="e#8574#8575#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -594,11 +586,10 @@
         <state relative-caret-position="465">
           <caret line="31" lean-forward="true" selection-start-line="31" selection-end-line="31" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#8362#8363#0" expanded="true" />
-            <element signature="e#8393#8394#0" expanded="true" />
-            <element signature="e#8442#8443#0" expanded="true" />
-            <element signature="e#8470#8471#0" expanded="true" />
+            <element signature="e#8466#8467#0" expanded="true" />
+            <element signature="e#8497#8498#0" expanded="true" />
+            <element signature="e#8546#8547#0" expanded="true" />
+            <element signature="e#8574#8575#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -618,12 +609,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="9" column="41" lean-forward="true" selection-start-line="9" selection-start-column="41" selection-end-line="9" selection-end-column="41" />
-          <folding>
-            <element signature="e#696#697#0" expanded="true" />
-            <element signature="e#733#734#0" expanded="true" />
-            <element signature="e#790#791#0" expanded="true" />
-            <element signature="e#835#836#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -656,11 +641,10 @@
         <state relative-caret-position="255">
           <caret line="30" column="49" lean-forward="true" selection-start-line="30" selection-start-column="49" selection-end-line="30" selection-end-column="49" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#8362#8363#0" expanded="true" />
-            <element signature="e#8393#8394#0" expanded="true" />
-            <element signature="e#8442#8443#0" expanded="true" />
-            <element signature="e#8470#8471#0" expanded="true" />
+            <element signature="e#8466#8467#0" expanded="true" />
+            <element signature="e#8497#8498#0" expanded="true" />
+            <element signature="e#8546#8547#0" expanded="true" />
+            <element signature="e#8574#8575#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -680,12 +664,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="9" column="41" lean-forward="true" selection-start-line="9" selection-start-column="41" selection-end-line="9" selection-end-column="41" />
-          <folding>
-            <element signature="e#696#697#0" expanded="true" />
-            <element signature="e#733#734#0" expanded="true" />
-            <element signature="e#790#791#0" expanded="true" />
-            <element signature="e#835#836#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -718,11 +696,10 @@
         <state relative-caret-position="1065">
           <caret line="85" column="13" selection-start-line="85" selection-start-column="13" selection-end-line="85" selection-end-column="13" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#8362#8363#0" expanded="true" />
-            <element signature="e#8393#8394#0" expanded="true" />
-            <element signature="e#8442#8443#0" expanded="true" />
-            <element signature="e#8470#8471#0" expanded="true" />
+            <element signature="e#8466#8467#0" expanded="true" />
+            <element signature="e#8497#8498#0" expanded="true" />
+            <element signature="e#8546#8547#0" expanded="true" />
+            <element signature="e#8574#8575#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -731,12 +708,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
           <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
-          <folding>
-            <element signature="e#696#697#0" expanded="true" />
-            <element signature="e#733#734#0" expanded="true" />
-            <element signature="e#790#791#0" expanded="true" />
-            <element signature="e#835#836#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -759,12 +730,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
           <caret line="7" lean-forward="true" selection-start-line="7" selection-end-line="7" />
-          <folding>
-            <element signature="e#696#697#0" expanded="true" />
-            <element signature="e#733#734#0" expanded="true" />
-            <element signature="e#790#791#0" expanded="true" />
-            <element signature="e#835#836#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -824,16 +789,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/api/App.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="55" selection-start-line="11" selection-start-column="55" selection-end-line="11" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/handler/NotifierHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
+        <state relative-caret-position="135">
           <caret line="12" column="28" selection-start-line="12" selection-start-column="28" selection-end-line="12" selection-end-column="28" />
           <folding>
             <element signature="imports" expanded="true" />
@@ -843,23 +801,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/handler/RoundHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
+        <state relative-caret-position="285">
           <caret line="26" column="52" selection-start-line="26" selection-start-column="52" selection-end-line="26" selection-end-column="52" />
           <folding>
             <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/model/Round.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="30" column="4" selection-start-line="30" selection-start-column="4" selection-end-line="30" selection-end-column="4" />
-          <folding>
-            <element signature="e#696#697#0" expanded="true" />
-            <element signature="e#733#734#0" expanded="true" />
-            <element signature="e#790#791#0" expanded="true" />
-            <element signature="e#835#836#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -873,7 +818,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="503">
+        <state relative-caret-position="1890">
           <caret line="126" column="22" selection-start-line="126" selection-start-column="22" selection-end-line="126" selection-end-column="22" />
         </state>
       </provider>
@@ -885,26 +830,39 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/bot/Bot.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/MessageBuilder.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="220" column="66" selection-start-line="220" selection-start-column="66" selection-end-line="220" selection-end-column="66" />
+        <state relative-caret-position="570">
+          <caret line="134" column="20" selection-start-line="134" selection-start-column="17" selection-end-line="134" selection-end-column="20" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#8362#8363#0" expanded="true" />
-            <element signature="e#8393#8394#0" expanded="true" />
-            <element signature="e#8442#8443#0" expanded="true" />
-            <element signature="e#8470#8471#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/MessageBuilder.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/model/Round.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="27" column="34" selection-start-line="27" selection-start-column="34" selection-end-line="27" selection-end-column="34" />
+        <state relative-caret-position="135">
+          <caret line="9" column="27" selection-start-line="9" selection-start-column="27" selection-end-line="9" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/api/App.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/telegram/bot/Bot.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="173">
+          <caret line="165" column="12" selection-start-line="165" selection-start-column="12" selection-end-line="165" selection-end-column="12" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="e#8466#8467#0" expanded="true" />
+            <element signature="e#8497#8498#0" expanded="true" />
+            <element signature="e#8546#8547#0" expanded="true" />
+            <element signature="e#8574#8575#0" expanded="true" />
           </folding>
         </state>
       </provider>
