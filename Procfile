@@ -1,2 +1,2 @@
-web: java -jar target/bot-jar-with-dependencies.jar
+web: java -jar bot-jar-with-dependencies.jar
 
