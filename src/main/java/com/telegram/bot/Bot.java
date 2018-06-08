@@ -163,7 +163,7 @@ public class Bot extends TelegramLongPollingBot {
         scheduler.scheduleWithFixedDelay(() -> {
             roundHandler.getRound().setRegistrationOngoing(true);
             notifierHandler.getRound().setRoundOngoing(false);
-            
+
             Iterator<SendMessage> iter = notifierHandler.getIterator();
             while (iter.hasNext()) {
                 InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
