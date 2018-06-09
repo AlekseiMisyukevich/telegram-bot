@@ -32,7 +32,7 @@ public class Bot extends TelegramLongPollingBot {
     private final String BOT_NAME = "doublegrambot";
     private final long REGISTRATION_DELAY = 2 * 60 * 60;
     private final long ROUND_DELAY = 2 * 60 * 60;
-    private volatile int iteration;
+    private volatile int cnt;
 
     private NotifierHandler notifierHandler;
     private RoundHandler roundHandler;
@@ -47,7 +47,7 @@ public class Bot extends TelegramLongPollingBot {
         this.roundHandler = new RoundHandler(new Round());
         this.msgBuilder = new MessageBuilder();
         this.lock = new ReentrantLock();
-        this.iteration = 1;
+        this.cnt = 1;
     }
 
     public void onUpdateReceived(Update update) {
@@ -102,7 +102,7 @@ public class Bot extends TelegramLongPollingBot {
             }
             case "/round": {
                 SendMessage sendMessage = new SendMessage().setChatId(chatId);
-                if (roundHandler.getRound().isRoundOngoing() && !roundHandler.getRound().isRegistrationOngoing()) {
+                if (roundHandler.getRound().isRoundOngoing()) {
                     sendMessage.setText(msgBuilder.onRegistrationEnded());
                 }
                 else if (roundHandler.getRound().isRegistrationOngoing() && !roundHandler.isUserRegistered(chatId)) {
@@ -118,6 +118,9 @@ public class Bot extends TelegramLongPollingBot {
                 }
                 else if (roundHandler.getRound().isRegistrationOngoing() && roundHandler.isUserRegistered(chatId)) {
                     sendMessage.setText(msgBuilder.alreadyRegistered());
+                }
+                else {
+                    sendMessage.setText(msgBuilder.getRoundStatus());
                 }
                 try {
                     execute(sendMessage);
@@ -200,7 +203,6 @@ public class Bot extends TelegramLongPollingBot {
                 row.add(button);
                 rows.add(row);
                 keyboardMarkup.setKeyboard(rows);
-
                 msg.setReplyMarkup(keyboardMarkup);
                 try {
                     execute(msg);
@@ -218,13 +220,13 @@ public class Bot extends TelegramLongPollingBot {
                 if (lock.tryLock()) {
                     roundHandler.getRound().setRoundOngoing(true);
                     roundHandler.getRound().setRegistrationOngoing(false);
-                    if (this.iteration == 13) {
-                        this.iteration = 1;
-                        roundHandler.getRound().setIteration(iteration);
+                    if (this.cnt == 13) {
+                        this.cnt = 1;
+                        roundHandler.getRound().setIteration(cnt);
                     }
                     else {
-                        this.iteration++;
-                        roundHandler.getRound().setIteration(iteration);
+                        this.cnt++;
+                        roundHandler.getRound().setIteration(cnt);
                     }
                 }
             } finally {
