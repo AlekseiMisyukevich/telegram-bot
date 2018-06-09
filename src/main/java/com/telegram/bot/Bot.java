@@ -200,7 +200,7 @@ public class Bot extends TelegramLongPollingBot {
         }, getZonedRegistrationStartTime(), REGISTRATION_DELAY, TimeUnit.SECONDS);
 
         scheduler.scheduleWithFixedDelay(() -> {
-            this.iteration = 1;
+            this.iteration = 6;
             roundHandler.getRound().setRegistrationOngoing(false);
             notifierHandler.getRound().setRoundOngoing(true);
             if (this.iteration == 13) {
@@ -238,7 +238,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(23).withMinute(30).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(9).withMinute(30).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -250,7 +250,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(00).withMinute(00).withSecond(0).withNano(0).plusDays(1);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(10).withMinute(00).withSecond(00).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
