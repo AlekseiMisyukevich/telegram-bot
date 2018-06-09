@@ -109,9 +109,7 @@ public class Bot extends TelegramLongPollingBot {
                     InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
                     List<List<InlineKeyboardButton>> rows = new ArrayList<>();
                     List<InlineKeyboardButton> row = new ArrayList<>();
-                    InlineKeyboardButton button = new InlineKeyboardButton().setText("Click to engage").setCallbackData("chatID")
-                            .setCallbackData(String.valueOf(chatId))
-                            .setCallbackData(username);;
+                    InlineKeyboardButton button = new InlineKeyboardButton().setText("Click to engage").setCallbackData("chatID");
                     row.add(button);
                     rows.add(row);
                     keyboardMarkup.setKeyboard(rows);
@@ -129,7 +127,6 @@ public class Bot extends TelegramLongPollingBot {
             }
         }
     }
-
     public synchronized void answerCallBack(String callData, Long msgID, Long chatID, String username) {
         switch (callData) {
             case "chatID": {
