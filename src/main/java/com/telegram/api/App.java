@@ -12,10 +12,7 @@ public class App {
         TelegramBotsApi botapi = new TelegramBotsApi();
         try {
             Bot bot = new Bot();
-
             botapi.registerBot(bot);
-            botapi.registerBot(new Bot());
-
             bot.execute();
         } catch (TelegramApiRequestException e) {
             throw new RuntimeException(e);
