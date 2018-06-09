@@ -131,29 +131,34 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     public synchronized void answerCallBack(String callData, Long msgID, Long chatID, String username) {
-        EditMessageText newMessage = new EditMessageText();
         switch (callData) {
             case "chatID": {
                 if (roundHandler.getRound().isRegistrationOngoing()) {
                     try {
                         if (lock.tryLock()) {
+                            EditMessageText newMessage = new EditMessageText();
                             newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationMessage());
                             roundHandler.addUser(chatID, username);
+
+                            try {
+                                execute(newMessage);
+                            } catch (TelegramApiException e) {
+                                throw new RuntimeException(e);
+                            }
                         }
                     } finally {
                         lock.unlock();
                     }
                 } else {
+                    EditMessageText newMessage = new EditMessageText();
                     newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationEnded());
-                }
-            }
-        }
 
-        if (!newMessage.getText().isEmpty()) {
-            try {
-                execute(newMessage);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
+                    try {
+                        execute(newMessage);
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
             }
         }
     }
