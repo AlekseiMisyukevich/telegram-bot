@@ -8,7 +8,7 @@ public class Round {
 
     public Round() {
         this.iteration = 11;
-        this.isRegistrationOngoing = true;
+        this.isRegistrationOngoing = false;
         this.isRoundOngoing = false;
     }
 
