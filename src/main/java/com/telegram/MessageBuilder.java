@@ -2,6 +2,7 @@ package com.telegram;
 
 import com.telegram.model.Round;
 
+import javax.ws.rs.HEAD;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -37,14 +38,21 @@ public class MessageBuilder {
         builder.append(" ");
         builder.append(zone.toString());
         builder.append(LINE_SEPARATOR);
-        builder.append("Round start at: ");
+        builder.append("Round starts at: ");
         builder.append( getStartOfRound().withNano(0).toString().replace("T", " ") );
         return builder.toString();
     }
 
     public String getInvitationMsg() {
+        LocalDateTime time = LocalDateTime.now();
         builder = new StringBuilder();
         builder.append("Registration's started.");
+        builder.append("Server time : " + time.withNano(0).toString().replace("T", " "));
+        builder.append(" ");
+        builder.append(zone.toString());
+        builder.append(LINE_SEPARATOR);
+        builder.append("Round start at: ");
+        builder.append( getStartOfRound().withNano(0).toString().replace("T", " ") );
         builder.append(LINE_SEPARATOR);
         builder.append("Click button below to drop your name.");
         return builder.toString();
@@ -80,6 +88,20 @@ public class MessageBuilder {
         builder.append(LINE_SEPARATOR);
         builder.append("You will be notified to register at: ");
         builder.append(time.withNano(0).minusMinutes(30).toString().replace("T", " "));
+        return builder.toString();
+    }
+
+    public String alreadyRegistered() {
+        LocalDateTime time = LocalDateTime.now();
+        builder = new StringBuilder();
+        builder.append("You have already registed");
+        builder.append(LINE_SEPARATOR);
+        builder.append("Server time : " + time.withNano(0).toString().replace("T", " "));
+        builder.append(" ");
+        builder.append(zone.toString());
+        builder.append(LINE_SEPARATOR);
+        builder.append("Round starts at: ");
+        builder.append( getStartOfRound().withNano(0).toString().replace("T", " ") );
         return builder.toString();
     }
 
