@@ -32,7 +32,7 @@ public class Bot extends TelegramLongPollingBot {
     private final String BOT_NAME = "doublegrambot";
     private final long REGISTRATION_DELAY = 2 * 60 * 60;
     private final long ROUND_DELAY = 2 * 60 * 60;
-    private int iteration;
+    private volatile int iteration;
 
     private Bot bot;
     private NotifierHandler notifierHandler;
