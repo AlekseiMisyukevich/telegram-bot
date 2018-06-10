@@ -209,8 +209,6 @@ public class Bot extends TelegramLongPollingBot {
                     execute(msg);
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
-                } finally {
-                    map.clear();
                 }
             }
 
