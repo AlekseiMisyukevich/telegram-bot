@@ -173,9 +173,9 @@ public class MessageBuilder {
         return LocalDateTime.now();
     }
 
-    public MessageBuilder() {
-        this.round = new Round();
+    public MessageBuilder(Round round) {
         this.zone = ZoneId.systemDefault();
+        this.round = round;
     }
 
 }

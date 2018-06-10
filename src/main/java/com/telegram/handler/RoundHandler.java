@@ -41,6 +41,7 @@ public class RoundHandler {
     private String createUsernamesList() {
         StringBuilder builder = new StringBuilder();
         builder.append("List of attendees");
+        builder.append(LINE_SEPARATOR);
         for (Map.Entry<Long, String> entry : chatAndUserIds.entrySet()) {
             builder.append(entry.getValue());
             builder.append(LINE_SEPARATOR);

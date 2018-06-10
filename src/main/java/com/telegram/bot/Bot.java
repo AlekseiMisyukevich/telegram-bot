@@ -42,12 +42,13 @@ public class Bot extends TelegramLongPollingBot {
     private ReentrantLock lock;
 
     public Bot() {
+        Round round = new Round();
         this.scheduler = Executors.newScheduledThreadPool(2);
         this.notifierHandler = new NotifierHandler();
-        this.roundHandler = new RoundHandler(new Round());
-        this.msgBuilder = new MessageBuilder();
+        this.roundHandler = new RoundHandler(round);
+        this.msgBuilder = new MessageBuilder(round);
         this.lock = new ReentrantLock();
-        this.cnt = 12;
+        this.cnt = 5;
     }
 
     public void onUpdateReceived(Update update) {
