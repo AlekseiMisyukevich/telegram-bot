@@ -1,14 +1,14 @@
 package com.telegram.bot;
 
 import com.telegram.MessageBuilder;
-import com.telegram.handler.NotifierHandler;
+import com.telegram.handler.RegistrationHandler;
 import com.telegram.handler.RoundHandler;
 import com.telegram.model.Round;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
-import org.telegram.telegrambots.api.objects.CallbackQuery;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -30,11 +30,10 @@ public class Bot extends TelegramLongPollingBot {
 
     private final String TOKEN = "608768766:AAHk7FUNTIerYiCsYVsThpqAVog5ALRlLHU";
     private final String BOT_NAME = "doublegrambot";
-    private final long REGISTRATION_DELAY = 2 * 60 * 60;
-    private final long ROUND_DELAY = 2 * 60 * 60;
-    private volatile int cnt;
+    private final long DELAY = 7200;
+    private volatile byte cnt;
 
-    private NotifierHandler notifierHandler;
+    private RegistrationHandler registrationHandler;
     private RoundHandler roundHandler;
     private MessageBuilder msgBuilder;
 
@@ -44,11 +43,11 @@ public class Bot extends TelegramLongPollingBot {
     public Bot() {
         Round round = new Round();
         this.scheduler = Executors.newScheduledThreadPool(2);
-        this.notifierHandler = new NotifierHandler();
+        this.registrationHandler = new RegistrationHandler();
         this.roundHandler = new RoundHandler(round);
         this.msgBuilder = new MessageBuilder(round);
         this.lock = new ReentrantLock();
-        this.cnt = 5;
+        this.cnt = 11;
     }
 
     public void onUpdateReceived(Update update) {
@@ -77,7 +76,7 @@ public class Bot extends TelegramLongPollingBot {
                 SendMessage sendMessage = new SendMessage().setChatId(chatId);
                 try {
                     if (lock.tryLock()) {
-                        notifierHandler.createNotification(chatId, username);
+                        registrationHandler.createNotification(chatId, username);
                         sendMessage.setText(msgBuilder.greeting());
                     }
                 } finally {
@@ -90,6 +89,7 @@ public class Bot extends TelegramLongPollingBot {
                 }
                 break;
             }
+
             case "/help": {
                 SendMessage sendMessage = new SendMessage().setChatId(chatId);
                 sendMessage.setText(msgBuilder.getBuiltinCommands());
@@ -101,20 +101,15 @@ public class Bot extends TelegramLongPollingBot {
                 }
                 break;
             }
+
             case "/round": {
+                final InlineKeyboardMarkup keyboardMarkup = getMarkup();
                 SendMessage sendMessage = new SendMessage().setChatId(chatId);
                 if (roundHandler.getRound().isRoundOngoing()) {
                     sendMessage.setText(msgBuilder.onRegistrationEnded());
                 }
                 else if (roundHandler.getRound().isRegistrationOngoing() && !roundHandler.isUserRegistered(chatId)) {
                     sendMessage.setText(msgBuilder.getInvitationMsg());
-                    InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-                    List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-                    List<InlineKeyboardButton> row = new ArrayList<>();
-                    InlineKeyboardButton button = new InlineKeyboardButton().setText("Click to engage").setCallbackData("chatID");
-                    row.add(button);
-                    rows.add(row);
-                    keyboardMarkup.setKeyboard(rows);
                     sendMessage.setReplyMarkup(keyboardMarkup);
                 }
                 else if (roundHandler.getRound().isRegistrationOngoing() && roundHandler.isUserRegistered(chatId)) {
@@ -132,6 +127,7 @@ public class Bot extends TelegramLongPollingBot {
             }
         }
     }
+
     public synchronized void answerCallBack(String callData, Long msgID, Long chatID, String username) {
         switch (callData) {
             case "chatID": {
@@ -180,43 +176,50 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public void execute() {
+    public void executeTasks() {
         scheduler.scheduleWithFixedDelay(() -> {
+
+            Map<String, SendMessage> map = registrationHandler.getMap();
+
+            if (map.isEmpty()) {
+                try {
+                    Thread.currentThread().wait(DELAY);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
             try {
-                if (lock.tryLock()) {
+                if (lock.tryLock(1000, TimeUnit.MILLISECONDS)) {
                     roundHandler.getRound().setRoundOngoing(false);
                     roundHandler.getRound().setRegistrationOngoing(true);
                 }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             } finally {
                 lock.unlock();
             }
 
-            Map<String, SendMessage> map = notifierHandler.getMap();
-
-            for (ConcurrentHashMap.Entry<String, SendMessage> entry: map.entrySet()) {
-                SendMessage msg = entry.getValue();
-                InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-                List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-                List<InlineKeyboardButton> row = new ArrayList<>();
-                InlineKeyboardButton button = new InlineKeyboardButton().setText("Click to engage").setCallbackData("chatID")
-                        .setCallbackData(entry.getKey())
-                        .setCallbackData(entry.getValue().getChatId());
-                row.add(button);
-                rows.add(row);
-                keyboardMarkup.setKeyboard(rows);
-                msg.setReplyMarkup(keyboardMarkup);
+            for (ConcurrentHashMap.Entry<String, SendMessage> entry : map.entrySet()) {
+                SendMessage msg = entry.getValue().setText(msgBuilder.onInlineButtonSend());
                 try {
                     execute(msg);
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
             }
-
-        }, getZonedRegistrationStartTime(), REGISTRATION_DELAY, TimeUnit.SECONDS);
+        }, getRegistrationStartTime(), DELAY, TimeUnit.SECONDS);
 
         scheduler.scheduleWithFixedDelay(() -> {
+            if (!roundHandler.getRound().isRegistrationOngoing()) {
+                try {
+                    Thread.currentThread().wait(DELAY);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
             try {
-                if (lock.tryLock()) {
+                if (lock.tryLock(1000, TimeUnit.MILLISECONDS)) {
                     roundHandler.getRound().setRoundOngoing(true);
                     roundHandler.getRound().setRegistrationOngoing(false);
                     if (this.cnt == 13) {
@@ -228,20 +231,50 @@ public class Bot extends TelegramLongPollingBot {
                         roundHandler.getRound().setIteration(cnt);
                     }
                 }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             } finally {
                 lock.unlock();
             }
+
             Iterator<SendMessage> iter = roundHandler.messageIterator();
             while (iter.hasNext()) {
                 try {
                     execute(iter.next());
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
-                } finally {
-                    roundHandler.getChatAndUserIds().clear();
                 }
             }
-        }, getZonedRoundStartTime(), ROUND_DELAY, TimeUnit.SECONDS);
+        }, getRoundStartTime(), DELAY, TimeUnit.SECONDS);
+
+        scheduler.scheduleWithFixedDelay(() -> {
+
+            try {
+                if (lock.tryLock(1000, TimeUnit.MILLISECONDS)) {
+                    roundHandler.getRound().setRoundOngoing(false);
+                    roundHandler.getRound().setRegistrationOngoing(false);
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } finally {
+                lock.unlock();
+            }
+
+            final Set<Long> chatID = roundHandler.getChatAndUserIds().keySet();
+
+            try {
+                for (long id: chatID) {
+                    SendMessage msg = new SendMessage().setChatId(id).setText(msgBuilder.onRoundEnded());
+                    execute(msg);
+                }
+            }
+            catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+            finally {
+                roundHandler.getChatAndUserIds().clear();
+            }
+        }, getEndOfRoundTime(), DELAY, TimeUnit.SECONDS);
     }
 
     @Override
@@ -254,12 +287,11 @@ public class Bot extends TelegramLongPollingBot {
         return TOKEN;
     }
 
-
-    private final long getZonedRegistrationStartTime() {
+    private final long getRegistrationStartTime() {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(7).withMinute(30).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(19).withMinute(30).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -267,15 +299,38 @@ public class Bot extends TelegramLongPollingBot {
         return duration.getSeconds();
     }
 
-    private final long getZonedRoundStartTime() {
+    private final long getRoundStartTime() {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(8).withMinute(0).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(20).withMinute(0).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
         Duration duration = Duration.between(zonedNow, zonedStartTime);
         return duration.getSeconds();
+    }
+
+    private final long getEndOfRoundTime() {
+        LocalDateTime localNow = LocalDateTime.now();
+        ZoneId currentZone = ZoneId.systemDefault();
+        ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(21).withMinute(20).withSecond(0).withNano(0);
+        if (zonedNow.compareTo(zonedStartTime) > 0) {
+            zonedStartTime = zonedStartTime.plusDays(1);
+        }
+        Duration duration = Duration.between(zonedNow, zonedStartTime);
+        return duration.getSeconds();
+    }
+
+    private InlineKeyboardMarkup getMarkup () {
+        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        InlineKeyboardButton button = new InlineKeyboardButton().setText("Click to engage").setCallbackData("chatID");
+        row.add(button);
+        rows.add(row);
+        keyboardMarkup.setKeyboard(rows);
+        return keyboardMarkup;
     }
 }

@@ -46,6 +46,7 @@ public class MessageBuilder {
         LocalDateTime time = LocalDateTime.now();
         builder = new StringBuilder();
         builder.append("Registration's started.");
+        builder.append(LINE_SEPARATOR);
         builder.append("Server time : " + time.withNano(0).toString().replace("T", " "));
         builder.append(" ");
         builder.append(zone.toString());
@@ -54,6 +55,12 @@ public class MessageBuilder {
         builder.append( getStartOfRound().withNano(0).toString().replace("T", " ") );
         builder.append(LINE_SEPARATOR);
         builder.append("Click button below to drop your name.");
+        return builder.toString();
+    }
+
+    public String onInlineButtonSend() {
+        builder = new StringBuilder();
+        builder.append("Click /round to drop your name.");
         return builder.toString();
     }
 
@@ -90,6 +97,14 @@ public class MessageBuilder {
         return builder.toString();
     }
 
+    public String onRoundEnded() {
+        builder = new StringBuilder();
+        builder.append("Round has ended");
+        builder.append(LINE_SEPARATOR);
+        builder.append("To check next engagement round type /round");
+        return builder.toString();
+    }
+
     public String alreadyRegistered() {
         LocalDateTime time = LocalDateTime.now();
         builder = new StringBuilder();
@@ -108,7 +123,7 @@ public class MessageBuilder {
         switch (round.getIteration()) {
             case 1: {
                 final LocalDateTime time = LocalDateTime.now();
-                return time.withHour(00).withMinute(00).withSecond(00).plusDays(1);
+                return time.withHour(0).withMinute(0).withSecond(0).plusDays(1);
             }
 
             case 2: {

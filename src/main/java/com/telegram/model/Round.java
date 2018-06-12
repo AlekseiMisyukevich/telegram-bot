@@ -4,11 +4,11 @@ public class Round {
 
     private volatile boolean isRegistrationOngoing;
     private volatile boolean isRoundOngoing;
-    private volatile int iteration;
+    private volatile byte iteration;
 
     public Round() {
-        this.iteration = 5;
-        this.isRegistrationOngoing = false;
+        this.iteration = 11;
+        this.isRegistrationOngoing = true;
         this.isRoundOngoing = false;
     }
 
@@ -20,11 +20,11 @@ public class Round {
         isRegistrationOngoing = registrationOngoing;
     }
 
-    public int getIteration() {
+    public byte getIteration() {
         return iteration;
     }
 
-    public void setIteration(int iteration) {
+    public void setIteration(byte iteration) {
         this.iteration = iteration;
     }
 
