@@ -14,9 +14,10 @@ public class MessageBuilder {
 
     public String greeting() {
         builder = new StringBuilder();
-        builder.append("Bot is running.");
+        builder.append("Greetings...");
         builder.append(LINE_SEPARATOR);
-        builder.append("Type /help to see builtin commands.");
+        builder.append("First you have to provide instagram nickname.");
+        builder.append("");
         return builder.toString();
     }
 
@@ -31,7 +32,7 @@ public class MessageBuilder {
     public String onRegistrationMessage() {
         LocalDateTime time = LocalDateTime.now();
         builder = new StringBuilder();
-        builder.append("You have registed");
+        builder.append("You have registered");
         builder.append(LINE_SEPARATOR);
         builder.append("Server time : " + time.withNano(0).toString().replace("T", " "));
         builder.append(" ");
@@ -108,7 +109,7 @@ public class MessageBuilder {
     public String alreadyRegistered() {
         LocalDateTime time = LocalDateTime.now();
         builder = new StringBuilder();
-        builder.append("You have already registed");
+        builder.append("You have already registered");
         builder.append(LINE_SEPARATOR);
         builder.append("Server time : " + time.withNano(0).toString().replace("T", " "));
         builder.append(" ");

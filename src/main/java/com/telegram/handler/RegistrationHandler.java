@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RegistrationHandler {
 
     private Map<String, SendMessage> map;
-    private MessageBuilder builder;
 
     public RegistrationHandler() {
         this.map = new ConcurrentHashMap<>();

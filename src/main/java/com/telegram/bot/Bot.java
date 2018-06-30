@@ -1,18 +1,22 @@
 package com.telegram.bot;
 
 import com.telegram.MessageBuilder;
+import com.telegram.dao.UserRepo;
 import com.telegram.handler.RegistrationHandler;
 import com.telegram.handler.RoundHandler;
 import com.telegram.model.Round;
+import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
+import org.telegram.telegrambots.exceptions.TelegramApiValidationException;
 
+import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -26,7 +30,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.Math.toIntExact;
 
-public class Bot extends TelegramLongPollingBot {
+public class Bot extends TelegramWebhookBot {
 
     private final String TOKEN = "608768766:AAHk7FUNTIerYiCsYVsThpqAVog5ALRlLHU";
     private final String BOT_NAME = "doublegrambot";
@@ -36,6 +40,7 @@ public class Bot extends TelegramLongPollingBot {
     private RegistrationHandler registrationHandler;
     private RoundHandler roundHandler;
     private MessageBuilder msgBuilder;
+    private UserRepo repo;
 
     private ScheduledExecutorService scheduler;
     private ReentrantLock lock;
@@ -46,28 +51,34 @@ public class Bot extends TelegramLongPollingBot {
         this.registrationHandler = new RegistrationHandler();
         this.roundHandler = new RoundHandler(round);
         this.msgBuilder = new MessageBuilder(round);
+        this.repo = new UserRepo();
         this.lock = new ReentrantLock();
-        this.cnt = 11;
+        this.cnt = 6;
     }
 
-    public void onUpdateReceived(Update update) {
+    @Override
+    public BotApiMethod onWebhookUpdateReceived(Update update) {
+
         if (update.hasMessage()) {
             String msg = update.getMessage().getText();
             long chatID = update.getMessage().getChatId();
             String username = update.getMessage().getChat().getUserName();
-            if (!update.getMessage().getText().isEmpty() ) {
+            if (!update.getMessage().getText().isEmpty()) {
                 sendMsg(msg, chatID, username);
             }
+
         } else if (update.hasCallbackQuery()) {
             String callData = update.getCallbackQuery().getData();
             long msgID = update.getCallbackQuery().getMessage().getMessageId();
             long chatID = update.getCallbackQuery().getMessage().getChatId();
             String username = update.getCallbackQuery().getFrom().getUserName();
             System.out.println(msgID + " " + chatID + " " + username);
-            if (!callData.isEmpty() && !username.isEmpty()){
+            if (!callData.isEmpty() && !username.isEmpty()) {
                 answerCallBack(callData, msgID, chatID, username);
             }
         }
+
+        return null;
     }
 
     public synchronized void sendMsg(String msg, Long chatId, String username) {
@@ -129,6 +140,7 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     public synchronized void answerCallBack(String callData, Long msgID, Long chatID, String username) {
+
         switch (callData) {
             case "chatID": {
                 if (roundHandler.getRound().isRegistrationOngoing() && !roundHandler.isUserRegistered(chatID)) {
@@ -178,19 +190,9 @@ public class Bot extends TelegramLongPollingBot {
 
     public void executeTasks() {
         scheduler.scheduleWithFixedDelay(() -> {
-
             Map<String, SendMessage> map = registrationHandler.getMap();
-
-            if (map.isEmpty()) {
-                try {
-                    Thread.currentThread().wait(DELAY);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
             try {
-                if (lock.tryLock(1000, TimeUnit.MILLISECONDS)) {
+                if (lock.tryLock(2000, TimeUnit.MILLISECONDS)) {
                     roundHandler.getRound().setRoundOngoing(false);
                     roundHandler.getRound().setRegistrationOngoing(true);
                 }
@@ -211,20 +213,13 @@ public class Bot extends TelegramLongPollingBot {
         }, getRegistrationStartTime(), DELAY, TimeUnit.SECONDS);
 
         scheduler.scheduleWithFixedDelay(() -> {
-            if (!roundHandler.getRound().isRegistrationOngoing()) {
-                try {
-                    Thread.currentThread().wait(DELAY);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
             try {
-                if (lock.tryLock(1000, TimeUnit.MILLISECONDS)) {
+                if (lock.tryLock(2000, TimeUnit.MILLISECONDS)) {
                     roundHandler.getRound().setRoundOngoing(true);
                     roundHandler.getRound().setRegistrationOngoing(false);
-                    if (this.cnt == 13) {
-                        this.cnt = 1;
+                    if (this.cnt == 12) {
                         roundHandler.getRound().setIteration(cnt);
+                        this.cnt = 1;
                     }
                     else {
                         this.cnt++;
@@ -248,9 +243,8 @@ public class Bot extends TelegramLongPollingBot {
         }, getRoundStartTime(), DELAY, TimeUnit.SECONDS);
 
         scheduler.scheduleWithFixedDelay(() -> {
-
             try {
-                if (lock.tryLock(1000, TimeUnit.MILLISECONDS)) {
+                if (lock.tryLock(2000, TimeUnit.MILLISECONDS)) {
                     roundHandler.getRound().setRoundOngoing(false);
                     roundHandler.getRound().setRegistrationOngoing(false);
                 }
@@ -259,7 +253,6 @@ public class Bot extends TelegramLongPollingBot {
             } finally {
                 lock.unlock();
             }
-
             final Set<Long> chatID = roundHandler.getChatAndUserIds().keySet();
 
             try {
@@ -278,6 +271,11 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     @Override
+    public String getBotPath() {
+        return null;
+    }
+
+    @Override
     public String getBotUsername() {
         return BOT_NAME;
     }
@@ -291,7 +289,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(19).withMinute(30).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(3).withMinute(30).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -303,7 +301,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(20).withMinute(0).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(4).withMinute(0).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -315,7 +313,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(21).withMinute(20).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(5).withMinute(20).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -323,7 +321,7 @@ public class Bot extends TelegramLongPollingBot {
         return duration.getSeconds();
     }
 
-    private InlineKeyboardMarkup getMarkup () {
+    private final InlineKeyboardMarkup getMarkup () {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
         List<InlineKeyboardButton> row = new ArrayList<>();
@@ -333,4 +331,34 @@ public class Bot extends TelegramLongPollingBot {
         keyboardMarkup.setKeyboard(rows);
         return keyboardMarkup;
     }
+
+    /* private final ZonedDateTime offsetStart() {
+        LocalDateTime localNow = LocalDateTime.now();
+        ZoneId currentZone = ZoneId.systemDefault();
+        ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
+        ZonedDateTime offset = null;
+
+        final int hours = zonedNow.getHour();
+        final int mins = zonedNow.getMinute();
+
+        if ( hours == 0 && mins > 0 ) {
+            offset = zonedNow.withHour(2).withMinute(0).withSecond(0).withNano(0);
+            this.cnt = 1;
+            this.roundHandler.getRound().setIteration(this.cnt);
+            this.roundHandler.getRound().setRoundOngoing(false);
+            this.roundHandler.getRound().setRegistrationOngoing(false);
+        } else if ( (hours % 2 != 0) && mins < 30 ) {
+            offset = zonedNow.withHour(hours + 1).withMinute(0).withSecond(0).withNano(0); }
+        else if ( (hours % 2 != 0) && mins > 30 ) {
+            offset = zonedNow.withHour(hours + 1).withMinute(0).withSecond(0).withNano(0);
+        }
+        else if ( hours != 0 && hours % 2 == 0 && mins < 30 ) {
+            offset = zonedNow.withHour(hours).withMinute(0).withSecond(0).withNano(0);
+        }
+        else if ( hours != 0 && hours % 2 == 0 && mins > 30 ) {
+            offset = zonedNow.withHour(hours).withMinute(0).withSecond(0).withNano(0);
+        }
+
+        return offset;
+    } */
 }
