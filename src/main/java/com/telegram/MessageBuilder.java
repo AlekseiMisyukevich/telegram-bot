@@ -23,9 +23,10 @@ public class MessageBuilder {
 
     public String getBuiltinCommands () {
         builder = new StringBuilder();
-        builder.append("List of builtin commands");
+        builder.append("List of builtin commands:");
         builder.append(LINE_SEPARATOR);
         builder.append("/round - check round status and your engagment ");
+        builder.append(LINE_SEPARATOR);
         builder.append("/whoami - let me introduce myself ");
         return builder.toString();
     }

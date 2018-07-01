@@ -20,9 +20,7 @@ public class RoundHandler {
         return round;
     }
 
-    public void addUser(Long id, String username) {
-        chatAndUserIds.put(id, "@" + username);
-    }
+    public void addUser(Long id, String username) { chatAndUserIds.put(id, buildeURL(username)); }
 
     public boolean isUserRegistered(Long key) {
         return chatAndUserIds.containsKey(key);
@@ -32,7 +30,7 @@ public class RoundHandler {
         ArrayList<SendMessage> messages = new ArrayList<>();
         String list = createUsernamesList();
         for (Map.Entry<Long, String> id : chatAndUserIds.entrySet()) {
-            SendMessage newMessage = new SendMessage().setChatId(id.getKey()).setText(list);
+            SendMessage newMessage = new SendMessage().setChatId(id.getKey()).setText(list).enableHtml(true);
             messages.add(newMessage);
         }
         return messages.iterator();
@@ -46,11 +44,21 @@ public class RoundHandler {
         builder.append(LINE_SEPARATOR);
         builder.append("Subscribe, leave likes and comments");
         builder.append(LINE_SEPARATOR);
-        builder.append("List of attendees:\n");
+        builder.append("List of attendees:");
+        builder.append(LINE_SEPARATOR);
         for (Map.Entry<Long, String> entry : chatAndUserIds.entrySet()) {
             builder.append(entry.getValue());
             builder.append(LINE_SEPARATOR);
         }
+        return builder.toString();
+    }
+
+    private String buildeURL(String username) {
+        StringBuilder builder = new StringBuilder();
+        String href = String.format("<a href=\"https://www.instagram.com/%s/\">", username);
+        builder.append( href );
+        builder.append(username);
+        builder.append("</a>");
         return builder.toString();
     }
 

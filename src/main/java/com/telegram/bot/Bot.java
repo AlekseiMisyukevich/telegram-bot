@@ -6,12 +6,11 @@ import com.telegram.dao.UserRepo;
 import com.telegram.handler.RegistrationHandler;
 import com.telegram.handler.RoundHandler;
 import com.telegram.model.Round;
-import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.bots.TelegramWebhookBot;
+import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.time.Duration;
@@ -30,7 +29,7 @@ import java.util.logging.Logger;
 
 import static java.lang.Math.toIntExact;
 
-public class Bot extends TelegramWebhookBot {
+public class Bot extends TelegramLongPollingBot {
 
     private final String TOKEN = "608768766:AAHk7FUNTIerYiCsYVsThpqAVog5ALRlLHU";
     private final String BOT_NAME = "doublegrambot";
@@ -56,12 +55,39 @@ public class Bot extends TelegramWebhookBot {
         this.msgBuilder = new MessageBuilder(round);
         this.repo = new UserRepo();
         this.lock = new ReentrantLock();
-        this.cnt = 9;
+        this.cnt = 12;
         this.replyKeyboard = new RepleyKeyboardBuilder();
     }
 
+//    @Override
+//    public BotApiMethod onWebhookUpdateReceived(Update update) {
+//        if (update.hasMessage()) {
+//            String msg = update.getMessage().getText();
+//            long chatID = update.getMessage().getChatId();
+//            String username = update.getMessage().getChat().getUserName();
+//            if (!update.getMessage().getText().isEmpty()) {
+//                sendMsg(msg, chatID, username);
+//            }
+//        } else if (update.getMessage().isReply()) {
+//            long chatID = update.getMessage().getChatId();
+//            String username = update.getMessage().getText();
+//            registrationHandler.createNotification(chatID, username);
+//            LOGGER.info(chatID + " " + username + " added.");
+//        } else if (update.hasCallbackQuery()) {
+//            String callData = update.getCallbackQuery().getData();
+//            long msgID = update.getCallbackQuery().getMessage().getMessageId();
+//            long chatID = update.getCallbackQuery().getMessage().getChatId();
+//            String username = update.getCallbackQuery().getFrom().getUserName();
+//            if (!callData.isEmpty() && !username.isEmpty()) {
+//                answerCallBack(callData, msgID, chatID, username);
+//            }
+//        }
+//        return  null;
+//    }
+
+
     @Override
-    public BotApiMethod onWebhookUpdateReceived(Update update) {
+    public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
             String msg = update.getMessage().getText();
             long chatID = update.getMessage().getChatId();
@@ -83,7 +109,6 @@ public class Bot extends TelegramWebhookBot {
                 answerCallBack(callData, msgID, chatID, username);
             }
         }
-        return  null;
     }
 
     public synchronized void sendMsg(String msg, Long chatId, String username) {
@@ -146,7 +171,7 @@ public class Bot extends TelegramWebhookBot {
                     throw new RuntimeException(e);
                 }
                 break;
-            } case "/about": {
+            } case "/whoami": {
                 SendMessage sendMessage = new SendMessage().setChatId(chatId);
                 sendMessage.setText(msgBuilder.about());
                 try {
@@ -306,11 +331,6 @@ public class Bot extends TelegramWebhookBot {
     }
 
     @Override
-    public String getBotPath() {
-        return null;
-    }
-
-    @Override
     public String getBotUsername() {
         return BOT_NAME;
     }
@@ -324,7 +344,7 @@ public class Bot extends TelegramWebhookBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(15).withMinute(30).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(21).withMinute(30).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -336,7 +356,7 @@ public class Bot extends TelegramWebhookBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(16).withMinute(0).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(22).withMinute(0).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -348,7 +368,7 @@ public class Bot extends TelegramWebhookBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(17).withMinute(00).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(23).withMinute(00).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
