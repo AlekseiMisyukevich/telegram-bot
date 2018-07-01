@@ -96,10 +96,10 @@ public class Bot extends TelegramLongPollingBot {
                 sendMsg(msg, chatID, username);
             }
         } else if (update.getMessage().isReply()) {
+            String msg = update.getMessage().getText();
             long chatID = update.getMessage().getChatId();
             String username = update.getMessage().getText();
-            registrationHandler.createNotification(chatID, username);
-            LOGGER.info(chatID + " " + username + " added.");
+            sendMsg(msg, chatID, username);
         } else if (update.hasCallbackQuery()) {
             String callData = update.getCallbackQuery().getData();
             long msgID = update.getCallbackQuery().getMessage().getMessageId();
@@ -128,6 +128,8 @@ public class Bot extends TelegramLongPollingBot {
                         execute(sendMessage);
                     } catch (TelegramApiException e) {
                         throw new RuntimeException(e);
+                    } finally {
+                        LOGGER.info(chatId + " " + username + " added.");
                     }
                     break;
                 } else {
