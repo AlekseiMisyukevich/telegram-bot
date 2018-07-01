@@ -55,7 +55,7 @@ public class Bot extends TelegramLongPollingBot {
         this.msgBuilder = new MessageBuilder(round);
         this.repo = new UserRepo();
         this.lock = new ReentrantLock();
-        this.cnt = 12;
+        this.cnt = 1;
         this.replyKeyboard = new RepleyKeyboardBuilder();
     }
 
@@ -96,9 +96,9 @@ public class Bot extends TelegramLongPollingBot {
                 sendMsg(msg, chatID, username);
             }
         } else if (update.getMessage().isReply()) {
-            String msg = update.getMessage().getText();
-            long chatID = update.getMessage().getChatId();
+            final String msg = "/start";
             String username = update.getMessage().getText();
+            long chatID = update.getMessage().getChatId();
             sendMsg(msg, chatID, username);
         } else if (update.hasCallbackQuery()) {
             String callData = update.getCallbackQuery().getData();
@@ -346,7 +346,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(21).withMinute(30).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(23).withMinute(30).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -358,7 +358,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(22).withMinute(0).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -370,7 +370,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(23).withMinute(00).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(1).withMinute(00).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
