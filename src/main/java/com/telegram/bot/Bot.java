@@ -1,6 +1,7 @@
 package com.telegram.bot;
 
 import com.telegram.MessageBuilder;
+import com.telegram.RepleyKeyboardBuilder;
 import com.telegram.dao.UserRepo;
 import com.telegram.handler.RegistrationHandler;
 import com.telegram.handler.RoundHandler;
@@ -10,23 +11,22 @@ import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
-import org.telegram.telegrambots.exceptions.TelegramApiValidationException;
 
-import java.io.Serializable;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 import static java.lang.Math.toIntExact;
 
@@ -41,9 +41,12 @@ public class Bot extends TelegramWebhookBot {
     private RoundHandler roundHandler;
     private MessageBuilder msgBuilder;
     private UserRepo repo;
+    private RepleyKeyboardBuilder replyKeyboard;
 
     private ScheduledExecutorService scheduler;
     private ReentrantLock lock;
+
+    private static final Logger LOGGER = Logger.getLogger(Bot.class.getName());
 
     public Bot() {
         Round round = new Round();
@@ -53,12 +56,12 @@ public class Bot extends TelegramWebhookBot {
         this.msgBuilder = new MessageBuilder(round);
         this.repo = new UserRepo();
         this.lock = new ReentrantLock();
-        this.cnt = 6;
+        this.cnt = 9;
+        this.replyKeyboard = new RepleyKeyboardBuilder();
     }
 
     @Override
     public BotApiMethod onWebhookUpdateReceived(Update update) {
-
         if (update.hasMessage()) {
             String msg = update.getMessage().getText();
             long chatID = update.getMessage().getChatId();
@@ -66,55 +69,63 @@ public class Bot extends TelegramWebhookBot {
             if (!update.getMessage().getText().isEmpty()) {
                 sendMsg(msg, chatID, username);
             }
-
+        } else if (update.getMessage().isReply()) {
+            long chatID = update.getMessage().getChatId();
+            String username = update.getMessage().getText();
+            registrationHandler.createNotification(chatID, username);
+            LOGGER.info(chatID + " " + username + " added.");
         } else if (update.hasCallbackQuery()) {
             String callData = update.getCallbackQuery().getData();
             long msgID = update.getCallbackQuery().getMessage().getMessageId();
             long chatID = update.getCallbackQuery().getMessage().getChatId();
             String username = update.getCallbackQuery().getFrom().getUserName();
-            System.out.println(msgID + " " + chatID + " " + username);
             if (!callData.isEmpty() && !username.isEmpty()) {
                 answerCallBack(callData, msgID, chatID, username);
             }
         }
-
-        return null;
+        return  null;
     }
 
     public synchronized void sendMsg(String msg, Long chatId, String username) {
         switch (msg) {
             case "/start": {
-                SendMessage sendMessage = new SendMessage().setChatId(chatId);
-                try {
-                    if (lock.tryLock()) {
-                        registrationHandler.createNotification(chatId, username);
-                        sendMessage.setText(msgBuilder.greeting());
+                if ( !registrationHandler.contains(chatId) ) {
+                    SendMessage sendMessage = new SendMessage().setChatId(chatId);
+                    try {
+                        if (lock.tryLock()) {
+                            sendMessage.setText(msgBuilder.greeting());
+                            sendMessage.setReplyMarkup(replyKeyboard.getNameButton(username));
+                        }
+                    } finally {
+                        lock.unlock();
                     }
-                } finally {
-                    lock.unlock();
+                    try {
+                        execute(sendMessage);
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                } else {
+                    SendMessage sendMessage = new SendMessage().setChatId(chatId);
+                    sendMessage.setText(msgBuilder.getBuiltinCommands());
+                    try {
+                        execute(sendMessage);
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
                 }
-                try {
-                    execute(sendMessage);
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
-                break;
-            }
-
-            case "/help": {
+            } case "/help": {
                 SendMessage sendMessage = new SendMessage().setChatId(chatId);
                 sendMessage.setText(msgBuilder.getBuiltinCommands());
-
                 try {
                     execute(sendMessage);
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
                 break;
-            }
-
-            case "/round": {
-                final InlineKeyboardMarkup keyboardMarkup = getMarkup();
+            } case "/round": {
+                final InlineKeyboardMarkup keyboardMarkup = replyKeyboard.getEnganeButton();
                 SendMessage sendMessage = new SendMessage().setChatId(chatId);
                 if (roundHandler.getRound().isRoundOngoing()) {
                     sendMessage.setText(msgBuilder.onRegistrationEnded());
@@ -135,12 +146,36 @@ public class Bot extends TelegramWebhookBot {
                     throw new RuntimeException(e);
                 }
                 break;
+            } case "/about": {
+                SendMessage sendMessage = new SendMessage().setChatId(chatId);
+                sendMessage.setText(msgBuilder.about());
+                try {
+                    execute(sendMessage);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
             }
         }
     }
 
     public synchronized void answerCallBack(String callData, Long msgID, Long chatID, String username) {
-
+        if (callData.contains(replyKeyboard.getFLAG())) {
+            SendMessage sendMessage = new SendMessage().setChatId(chatID);
+            try {
+                if (lock.tryLock()) {
+                    registrationHandler.createNotification(chatID, username);
+                    LOGGER.info(chatID + " " + username + " added.");
+                }
+            } finally {
+                lock.unlock();
+            }
+            try {
+                execute(sendMessage);
+            } catch (TelegramApiException e) {
+                throw new RuntimeException(e);
+            }
+        }
         switch (callData) {
             case "chatID": {
                 if (roundHandler.getRound().isRegistrationOngoing() && !roundHandler.isUserRegistered(chatID)) {
@@ -149,6 +184,7 @@ public class Bot extends TelegramWebhookBot {
                     try {
                         if (lock.tryLock()) {
                             roundHandler.addUser(chatID, username);
+                            LOGGER.info(chatID + " " + username + " joined round.");
                         }
                     } finally {
                         lock.unlock();
@@ -158,7 +194,6 @@ public class Bot extends TelegramWebhookBot {
                         } catch (TelegramApiException e) {
                             throw new RuntimeException(e);
                         }
-
                         break;
                     }
                 }
@@ -289,7 +324,7 @@ public class Bot extends TelegramWebhookBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(3).withMinute(30).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(15).withMinute(30).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -301,7 +336,7 @@ public class Bot extends TelegramWebhookBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(4).withMinute(0).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(16).withMinute(0).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -313,23 +348,12 @@ public class Bot extends TelegramWebhookBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(5).withMinute(20).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(17).withMinute(00).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
         Duration duration = Duration.between(zonedNow, zonedStartTime);
         return duration.getSeconds();
-    }
-
-    private final InlineKeyboardMarkup getMarkup () {
-        InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
-        List<InlineKeyboardButton> row = new ArrayList<>();
-        InlineKeyboardButton button = new InlineKeyboardButton().setText("Click to engage").setCallbackData("chatID");
-        row.add(button);
-        rows.add(row);
-        keyboardMarkup.setKeyboard(rows);
-        return keyboardMarkup;
     }
 
     /* private final ZonedDateTime offsetStart() {

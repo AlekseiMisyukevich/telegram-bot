@@ -40,8 +40,13 @@ public class RoundHandler {
 
     private String createUsernamesList() {
         StringBuilder builder = new StringBuilder();
-        builder.append("List of attendees");
+        builder.append("Round lasts 1 hour.");
         builder.append(LINE_SEPARATOR);
+        builder.append("Search users on Instagram.");
+        builder.append(LINE_SEPARATOR);
+        builder.append("Subscribe, leave likes and comments");
+        builder.append(LINE_SEPARATOR);
+        builder.append("List of attendees:\n");
         for (Map.Entry<Long, String> entry : chatAndUserIds.entrySet()) {
             builder.append(entry.getValue());
             builder.append(LINE_SEPARATOR);

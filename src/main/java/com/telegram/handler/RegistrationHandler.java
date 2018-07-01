@@ -21,10 +21,14 @@ public class RegistrationHandler {
     public void createNotification(Long id, String username) {
         SendMessage msg = new SendMessage().setChatId(id);
         map.put(username, msg);
+    }
 
+    public boolean contains(Long chatID) {
+        return map.containsKey(chatID);
     }
 
     public Map<String, SendMessage> getMap() {
         return map;
     }
+
 }

@@ -16,8 +16,8 @@ public class MessageBuilder {
         builder = new StringBuilder();
         builder.append("Greetings...");
         builder.append(LINE_SEPARATOR);
-        builder.append("First you have to provide instagram nickname.");
-        builder.append("");
+        builder.append("First you have to provide instagram nickname. If telegram and instagram nicknames match click the button below.\n" +
+                "Otherwise reply this message with your instagram nickname without @ sing.");
         return builder.toString();
     }
 
@@ -26,6 +26,7 @@ public class MessageBuilder {
         builder.append("List of builtin commands");
         builder.append(LINE_SEPARATOR);
         builder.append("/round - check round status and your engagment ");
+        builder.append("/whoami - let me introduce myself ");
         return builder.toString();
     }
 
@@ -120,6 +121,14 @@ public class MessageBuilder {
         return builder.toString();
     }
 
+    public String about() {
+        return new String("Hey there, welcome to Doublegram.\n" +
+                "I was designed to help you grow on Instagram!\n" +
+                "Join upcoming round so others users can like, comment your content and they expect from you the same.\n" +
+                "Use /round command to check round status."
+        );
+    }
+
     private LocalDateTime getStartOfRound() {
         switch (round.getIteration()) {
             case 1: {
@@ -185,7 +194,6 @@ public class MessageBuilder {
                 return time.withHour(22).withMinute(00).withSecond(00);
             }
         }
-
         return LocalDateTime.now();
     }
 
