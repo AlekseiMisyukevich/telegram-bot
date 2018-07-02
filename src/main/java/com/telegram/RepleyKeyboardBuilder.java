@@ -8,24 +8,25 @@ import java.util.List;
 
 public class RepleyKeyboardBuilder {
 
-    private final String FLAG = "0x494E";
+    private final String REG_FLAG = "0x494E";
+    private final String ROUND_FLAG = "0x454E";
 
-    public final InlineKeyboardMarkup getEnganeButton() {
+    public final InlineKeyboardMarkup getNameButton(String nickname) {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
         List<InlineKeyboardButton> row = new ArrayList<>();
-        InlineKeyboardButton button = new InlineKeyboardButton().setText("Click to engage").setCallbackData("chatID");
+        InlineKeyboardButton button = new InlineKeyboardButton().setText(nickname).setCallbackData(REG_FLAG);
         row.add(button);
         rows.add(row);
         keyboardMarkup.setKeyboard(rows);
         return keyboardMarkup;
     }
 
-    public final InlineKeyboardMarkup getNameButton(String nickname) {
+    public final InlineKeyboardMarkup getEnganeButton() {
         InlineKeyboardMarkup keyboardMarkup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
         List<InlineKeyboardButton> row = new ArrayList<>();
-        InlineKeyboardButton button = new InlineKeyboardButton().setText(nickname).setCallbackData(nickname + FLAG);
+        InlineKeyboardButton button = new InlineKeyboardButton().setText("Click to engage").setCallbackData(ROUND_FLAG);
         row.add(button);
         rows.add(row);
         keyboardMarkup.setKeyboard(rows);
@@ -33,6 +34,8 @@ public class RepleyKeyboardBuilder {
     }
 
     public String getFLAG() {
-        return FLAG;
+        return REG_FLAG;
     }
+
+    public String getCHAT_FLAG() { return ROUND_FLAG; }
 }

@@ -6,6 +6,7 @@ import com.telegram.dao.UserRepo;
 import com.telegram.handler.RegistrationHandler;
 import com.telegram.handler.RoundHandler;
 import com.telegram.model.Round;
+import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.Update;
@@ -55,39 +56,12 @@ public class Bot extends TelegramLongPollingBot {
         this.msgBuilder = new MessageBuilder(round);
         this.repo = new UserRepo();
         this.lock = new ReentrantLock();
-        this.cnt = 1;
+        this.cnt = 6;
         this.replyKeyboard = new RepleyKeyboardBuilder();
     }
 
-//    @Override
-//    public BotApiMethod onWebhookUpdateReceived(Update update) {
-//        if (update.hasMessage()) {
-//            String msg = update.getMessage().getText();
-//            long chatID = update.getMessage().getChatId();
-//            String username = update.getMessage().getChat().getUserName();
-//            if (!update.getMessage().getText().isEmpty()) {
-//                sendMsg(msg, chatID, username);
-//            }
-//        } else if (update.getMessage().isReply()) {
-//            long chatID = update.getMessage().getChatId();
-//            String username = update.getMessage().getText();
-//            registrationHandler.createNotification(chatID, username);
-//            LOGGER.info(chatID + " " + username + " added.");
-//        } else if (update.hasCallbackQuery()) {
-//            String callData = update.getCallbackQuery().getData();
-//            long msgID = update.getCallbackQuery().getMessage().getMessageId();
-//            long chatID = update.getCallbackQuery().getMessage().getChatId();
-//            String username = update.getCallbackQuery().getFrom().getUserName();
-//            if (!callData.isEmpty() && !username.isEmpty()) {
-//                answerCallBack(callData, msgID, chatID, username);
-//            }
-//        }
-//        return  null;
-//    }
-
-
-    @Override
-    public void onUpdateReceived(Update update) {
+    /*@Override
+    public BotApiMethod onWebhookUpdateReceived(Update update) {
         if (update.hasMessage()) {
             String msg = update.getMessage().getText();
             long chatID = update.getMessage().getChatId();
@@ -96,8 +70,37 @@ public class Bot extends TelegramLongPollingBot {
                 sendMsg(msg, chatID, username);
             }
         } else if (update.getMessage().isReply()) {
-            final String msg = "/start";
+            long chatID = update.getMessage().getChatId();
             String username = update.getMessage().getText();
+            registrationHandler.createNotification(chatID, username);
+            LOGGER.info(chatID + " " + username + " added.");
+        } else if (update.hasCallbackQuery()) {
+            String callData = update.getCallbackQuery().getData();
+            long msgID = update.getCallbackQuery().getMessage().getMessageId();
+            long chatID = update.getCallbackQuery().getMessage().getChatId();
+            String username = update.getCallbackQuery().getFrom().getUserName();
+            if (!callData.isEmpty() && !username.isEmpty()) {
+                answerCallBack(callData, msgID, chatID, username);
+            }
+        }
+        return  null;
+    }*/
+
+
+    @Override
+    public void onUpdateReceived(Update update) {
+        if (update.hasMessage()) {
+            String msg = update.getMessage().getText();
+            long chatID = update.getMessage().getChatId();
+            String username = update.getMessage().getChat().getUserName();
+            if (!msg.isEmpty() && !username.isEmpty()) {
+                sendMsg(msg, chatID, username);
+            } else {
+                return;
+            }
+        } else if (update.getMessage().isReply()) {
+            final String msg = "/start";
+            String username = update.getMessage().getReplyToMessage().getText();
             long chatID = update.getMessage().getChatId();
             sendMsg(msg, chatID, username);
         } else if (update.hasCallbackQuery()) {
@@ -114,10 +117,20 @@ public class Bot extends TelegramLongPollingBot {
     public synchronized void sendMsg(String msg, Long chatId, String username) {
         switch (msg) {
             case "/start": {
-                if ( !registrationHandler.contains(chatId) ) {
+                if ( registrationHandler.contains(chatId) ) {
+                    SendMessage sendMessage = new SendMessage().setChatId(chatId);
+                    sendMessage.setText(msgBuilder.getBuiltinCommands());
+                    try {
+                        execute(sendMessage);
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
+                    }
+                    break;
+                } else {
                     SendMessage sendMessage = new SendMessage().setChatId(chatId);
                     try {
                         if (lock.tryLock()) {
+                            registrationHandler.createNotification(chatId, username);
                             sendMessage.setText(msgBuilder.greeting());
                             sendMessage.setReplyMarkup(replyKeyboard.getNameButton(username));
                         }
@@ -130,15 +143,6 @@ public class Bot extends TelegramLongPollingBot {
                         throw new RuntimeException(e);
                     } finally {
                         LOGGER.info(chatId + " " + username + " added.");
-                    }
-                    break;
-                } else {
-                    SendMessage sendMessage = new SendMessage().setChatId(chatId);
-                    sendMessage.setText(msgBuilder.getBuiltinCommands());
-                    try {
-                        execute(sendMessage);
-                    } catch (TelegramApiException e) {
-                        throw new RuntimeException(e);
                     }
                     break;
                 }
@@ -187,24 +191,25 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     public synchronized void answerCallBack(String callData, Long msgID, Long chatID, String username) {
-        if (callData.contains(replyKeyboard.getFLAG())) {
-            SendMessage sendMessage = new SendMessage().setChatId(chatID);
-            try {
-                if (lock.tryLock()) {
-                    registrationHandler.createNotification(chatID, username);
-                    LOGGER.info(chatID + " " + username + " added.");
-                }
-            } finally {
-                lock.unlock();
-            }
-            try {
-                execute(sendMessage);
-            } catch (TelegramApiException e) {
-                throw new RuntimeException(e);
-            }
-        }
         switch (callData) {
-            case "chatID": {
+            case "0x494E": {
+                SendMessage sendMessage = new SendMessage().setChatId(chatID);
+                try {
+                    if (lock.tryLock()) {
+                        registrationHandler.createNotification(chatID, username);
+                        LOGGER.info(chatID + " " + username + " added.");
+                    }
+                } finally {
+                    lock.unlock();
+                }
+                try {
+                    execute(sendMessage);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            case "0x454E": {
                 if (roundHandler.getRound().isRegistrationOngoing() && !roundHandler.isUserRegistered(chatID)) {
                     EditMessageText newMessage = new EditMessageText();
                     newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationMessage());
