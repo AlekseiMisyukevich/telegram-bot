@@ -3,6 +3,7 @@ package com.telegram.api;
 import com.telegram.bot.Bot;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
+import org.telegram.telegrambots.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
 public class App {
@@ -17,7 +18,7 @@ public class App {
 
         TelegramBotsApi botapi = new TelegramBotsApi();
         Bot bot = new Bot();
-
+        
         try {
             botapi.registerBot(bot);
             bot.executeTasks();

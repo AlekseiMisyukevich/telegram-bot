@@ -5,11 +5,12 @@ import com.telegram.RepleyKeyboardBuilder;
 import com.telegram.dao.UserRepo;
 import com.telegram.handler.RegistrationHandler;
 import com.telegram.handler.RoundHandler;
+import com.telegram.model.CustomUser;
 import com.telegram.model.Round;
-import org.telegram.telegrambots.api.methods.BotApiMethod;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -18,10 +19,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +35,7 @@ public class Bot extends TelegramLongPollingBot {
     private final String TOKEN = "608768766:AAHk7FUNTIerYiCsYVsThpqAVog5ALRlLHU";
     private final String BOT_NAME = "doublegrambot";
     private final long DELAY = 7200;
+    private final String REPLIED_MSG_INDICATOR = "Greetings...";
     private volatile byte cnt;
 
     private RegistrationHandler registrationHandler;
@@ -56,7 +57,7 @@ public class Bot extends TelegramLongPollingBot {
         this.msgBuilder = new MessageBuilder(round);
         this.repo = new UserRepo();
         this.lock = new ReentrantLock();
-        this.cnt = 6;
+        this.cnt = 10;
         this.replyKeyboard = new RepleyKeyboardBuilder();
     }
 
@@ -86,63 +87,86 @@ public class Bot extends TelegramLongPollingBot {
         return  null;
     }*/
 
-
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage()) {
+        if (!update.hasCallbackQuery() && update.hasMessage() && !update.getMessage().isReply()) {
+
             String msg = update.getMessage().getText();
-            long chatID = update.getMessage().getChatId();
+            long chatId = update.getMessage().getChatId();
+            long userId = update.getMessage().getFrom().getId();
             String username = update.getMessage().getChat().getUserName();
+
             if (!msg.isEmpty() && !username.isEmpty()) {
-                sendMsg(msg, chatID, username);
+                sendMsg(msg, chatId, userId, username);
             } else {
                 return;
             }
-        } else if (update.getMessage().isReply()) {
-            final String msg = "/start";
-            String username = update.getMessage().getReplyToMessage().getText();
+        } else if (!update.hasCallbackQuery() && update.getMessage().isReply() && update.getMessage().getReplyToMessage().getText().contains(REPLIED_MSG_INDICATOR)) {
+            System.out.println(update.getMessage().getReplyToMessage().getText());
+            User newUser = update.getMessage().getFrom();
+            final String msg = "startReply";
+            long userID = newUser.getId();
             long chatID = update.getMessage().getChatId();
-            sendMsg(msg, chatID, username);
+            String firstName = newUser.getFirstName();
+            String lastName = newUser.getLastName();
+            String lang = newUser.getLanguageCode();
+            String username = update.getMessage().getChat().getUserName();
+            String instaName = update.getMessage().getText();
+
+            if (!username.isEmpty() && chatID != 0) {
+                sendMsg(msg, userID, chatID, firstName, lastName, lang, username, instaName);
+            } else {
+                return;
+            }
+
         } else if (update.hasCallbackQuery()) {
-            String callData = update.getCallbackQuery().getData();
-            long msgID = update.getCallbackQuery().getMessage().getMessageId();
-            long chatID = update.getCallbackQuery().getMessage().getChatId();
-            String username = update.getCallbackQuery().getFrom().getUserName();
-            if (!callData.isEmpty() && !username.isEmpty()) {
-                answerCallBack(callData, msgID, chatID, username);
+
+            if (!update.getCallbackQuery().getData().isEmpty()) {
+                answerCallBack(update);
+            } else {
+                return;
             }
         }
     }
 
-    public synchronized void sendMsg(String msg, Long chatId, String username) {
+    public synchronized void sendMsg(String msg, long userId, long chatId, String firstName, String lastName, String lang, String username, String instaName) {
+        switch (msg) {
+            case "startReply": {
+                repo.add(userId, new CustomUser(chatId, firstName, lastName, username, instaName, lang));
+                registrationHandler.createNotification(chatId, msgBuilder.onInlineButtonSend());
+                SendMessage sendMessage = new SendMessage();
+                try {
+                    sendMessage.setChatId(chatId);
+                    sendMessage.setText(msgBuilder.getRoundStatus());
+                    execute(sendMessage);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
+                }
+                break;
+            }
+        }
+    }
+
+    public synchronized void sendMsg(String msg, long chatId, long userId, String username) {
         switch (msg) {
             case "/start": {
-                if ( registrationHandler.contains(chatId) ) {
-                    SendMessage sendMessage = new SendMessage().setChatId(chatId);
-                    sendMessage.setText(msgBuilder.getBuiltinCommands());
+                if (!repo.contains(userId)) {
+                    SendMessage sendMessage = new SendMessage();
                     try {
+                        sendMessage.setChatId(chatId);
+                        sendMessage.setText(msgBuilder.greeting());
+                        sendMessage.setReplyMarkup(replyKeyboard.getNameButton(username));
                         execute(sendMessage);
                     } catch (TelegramApiException e) {
                         throw new RuntimeException(e);
                     }
                     break;
                 } else {
-                    SendMessage sendMessage = new SendMessage().setChatId(chatId);
-                    try {
-                        if (lock.tryLock()) {
-                            registrationHandler.createNotification(chatId, username);
-                            sendMessage.setText(msgBuilder.greeting());
-                            sendMessage.setReplyMarkup(replyKeyboard.getNameButton(username));
-                        }
-                    } finally {
-                        lock.unlock();
-                    }
+                    SendMessage sendMessage = new SendMessage().setChatId(chatId).setText(msgBuilder.getBuiltinCommands());
                     try {
                         execute(sendMessage);
                     } catch (TelegramApiException e) {
                         throw new RuntimeException(e);
-                    } finally {
-                        LOGGER.info(chatId + " " + username + " added.");
                     }
                     break;
                 }
@@ -190,33 +214,62 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-    public synchronized void answerCallBack(String callData, Long msgID, Long chatID, String username) {
+    public synchronized void answerCallBack(Update update) {
+        String callData = update.getCallbackQuery().getData();
         switch (callData) {
-            case "0x494E": {
-                SendMessage sendMessage = new SendMessage().setChatId(chatID);
-                try {
-                    if (lock.tryLock()) {
-                        registrationHandler.createNotification(chatID, username);
-                        LOGGER.info(chatID + " " + username + " added.");
+            case "reg": {
+                User newUser = update.getCallbackQuery().getFrom();
+                long userID = newUser.getId();
+                long msgID = update.getCallbackQuery().getMessage().getMessageId();
+                long chatID = update.getCallbackQuery().getMessage().getChatId();
+                String firstName = newUser.getFirstName();
+                String lastName = newUser.getLastName();
+                String username = newUser.getUserName();
+                String instaName = username;
+                String lang = newUser.getLanguageCode();
+
+                if (repo.contains(userID)) {
+                    EditMessageText newMessage = new EditMessageText();
+                    newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.alreadyRegistered());
+                    try {
+                        execute(newMessage);
+                    } catch (TelegramApiException e) {
+                        throw new RuntimeException(e);
                     }
-                } finally {
-                    lock.unlock();
-                }
-                try {
-                    execute(sendMessage);
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
+                } else {
+                    try {
+                        EditMessageText newMessage = new EditMessageText();
+                        newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.getRoundStatus());
+                        if (lock.tryLock()) {
+                            repo.add(userID, new CustomUser(chatID, firstName, lastName, username, instaName, lang));
+                            registrationHandler.createNotification(chatID, msgBuilder.onInlineButtonSend());
+                            LOGGER.info(username + " added.");
+                        }
+                        try {
+                            execute(newMessage);
+                        } catch (TelegramApiException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } finally {
+                        lock.unlock();
+                    }
                 }
             }
+            case "round": {
+                User newUser = update.getCallbackQuery().getFrom();
+                long msgID = update.getCallbackQuery().getMessage().getMessageId();
+                long userID = newUser.getId();
+                long chatID = update.getCallbackQuery().getMessage().getChatId();
+                String username = newUser.getUserName();
+                String instaName = repo.getById(userID).getInstaName();
 
-            case "0x454E": {
                 if (roundHandler.getRound().isRegistrationOngoing() && !roundHandler.isUserRegistered(chatID)) {
                     EditMessageText newMessage = new EditMessageText();
                     newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationMessage());
                     try {
                         if (lock.tryLock()) {
-                            roundHandler.addUser(chatID, username);
-                            LOGGER.info(chatID + " " + username + " joined round.");
+                            roundHandler.addUser(chatID, instaName);
+                            LOGGER.info(username + " joined round under nickname " + instaName);
                         }
                     } finally {
                         lock.unlock();
@@ -228,8 +281,7 @@ public class Bot extends TelegramLongPollingBot {
                         }
                         break;
                     }
-                }
-                else if (roundHandler.getRound().isRegistrationOngoing() && roundHandler.isUserRegistered(chatID)) {
+                } else if (roundHandler.getRound().isRegistrationOngoing() && roundHandler.isUserRegistered(chatID)) {
                     SendMessage newMessage = new SendMessage();
                     newMessage.setChatId(chatID).setText(msgBuilder.alreadyRegistered());
                     try {
@@ -239,8 +291,7 @@ public class Bot extends TelegramLongPollingBot {
                     } finally {
                         break;
                     }
-                }
-                else if ( roundHandler.getRound().isRoundOngoing() ) {
+                } else if (roundHandler.getRound().isRoundOngoing()) {
                     EditMessageText newMessage = new EditMessageText();
                     newMessage.setChatId(chatID).setMessageId(toIntExact(msgID)).setText(msgBuilder.onRegistrationEnded());
                     try {
@@ -257,7 +308,7 @@ public class Bot extends TelegramLongPollingBot {
 
     public void executeTasks() {
         scheduler.scheduleWithFixedDelay(() -> {
-            Map<String, SendMessage> map = registrationHandler.getMap();
+            ArrayList<SendMessage> messages = registrationHandler.getMessages();
             try {
                 if (lock.tryLock(2000, TimeUnit.MILLISECONDS)) {
                     roundHandler.getRound().setRoundOngoing(false);
@@ -269,11 +320,11 @@ public class Bot extends TelegramLongPollingBot {
                 lock.unlock();
             }
 
-            for (ConcurrentHashMap.Entry<String, SendMessage> entry : map.entrySet()) {
-                SendMessage msg = entry.getValue().setText(msgBuilder.onInlineButtonSend());
+            Iterator<SendMessage> iter = messages.iterator();
+            while (iter.hasNext()) {
                 try {
-                    execute(msg);
-                } catch (TelegramApiException e) {
+                    execute(iter.next());
+                } catch(TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
             }
@@ -299,7 +350,7 @@ public class Bot extends TelegramLongPollingBot {
                 lock.unlock();
             }
 
-            Iterator<SendMessage> iter = roundHandler.messageIterator();
+            Iterator<SendMessage> iter = roundHandler.buildMessageIterator();
             while (iter.hasNext()) {
                 try {
                     execute(iter.next());
@@ -351,7 +402,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(23).withMinute(30).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(17).withMinute(30).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -363,7 +414,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(0).withMinute(0).withSecond(0).withNano(0).plusDays(1);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(18).withMinute(0).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -375,7 +426,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(1).withMinute(00).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(19).withMinute(00).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }

@@ -7,7 +7,7 @@ public class Round {
     private volatile byte iteration;
 
     public Round() {
-        this.iteration = 6;
+        this.iteration = 10;
         this.isRegistrationOngoing = false;
         this.isRoundOngoing = false;
     }
@@ -20,14 +20,6 @@ public class Round {
         isRegistrationOngoing = registrationOngoing;
     }
 
-    public byte getIteration() {
-        return iteration;
-    }
-
-    public void setIteration(byte iteration) {
-        this.iteration = iteration;
-    }
-
     public boolean isRoundOngoing() {
         return isRoundOngoing;
     }
@@ -36,4 +28,11 @@ public class Round {
         isRoundOngoing = roundOngoing;
     }
 
+    public byte getIteration() {
+        return iteration;
+    }
+
+    public void setIteration(byte iteration) {
+        this.iteration = iteration;
+    }
 }

@@ -1,34 +1,25 @@
 package com.telegram.handler;
 
-import com.telegram.MessageBuilder;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
-import org.telegram.telegrambots.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RegistrationHandler {
 
-    private Map<String, SendMessage> map;
+    private ArrayList<SendMessage> messages;
 
     public RegistrationHandler() {
-        this.map = new ConcurrentHashMap<>();
+        this.messages = new ArrayList<>();
     }
 
-    public void createNotification(Long id, String username) {
-        SendMessage msg = new SendMessage().setChatId(id);
-        map.put(username, msg);
+    public void createNotification(Long id, String message) {
+        SendMessage msg = new SendMessage().setChatId(id).setText(message);
+        messages.add(msg);
     }
 
-    public boolean contains(Long chatID) {
-        return map.containsKey(chatID);
-    }
-
-    public Map<String, SendMessage> getMap() {
-        return map;
+    public ArrayList<SendMessage> getMessages() {
+        return messages;
     }
 
 }

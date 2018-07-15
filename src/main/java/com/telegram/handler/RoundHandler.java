@@ -26,11 +26,12 @@ public class RoundHandler {
         return chatAndUserIds.containsKey(key);
     }
 
-    public Iterator<SendMessage> messageIterator() {
+    public Iterator<SendMessage> buildMessageIterator() {
         ArrayList<SendMessage> messages = new ArrayList<>();
         String list = createUsernamesList();
         for (Map.Entry<Long, String> id : chatAndUserIds.entrySet()) {
-            SendMessage newMessage = new SendMessage().setChatId(id.getKey()).setText(list).enableHtml(true);
+            SendMessage newMessage = new SendMessage().setChatId(id.getKey()).setText(list)
+                    .enableHtml(true).disableWebPagePreview();
             messages.add(newMessage);
         }
         return messages.iterator();
@@ -38,11 +39,10 @@ public class RoundHandler {
 
     private String createUsernamesList() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Round lasts 1 hour.");
+        builder.append("Round lasts 1 hour. ");
+        builder.append("Look up users on Instragram.");
         builder.append(LINE_SEPARATOR);
-        builder.append("Search users on Instagram.");
-        builder.append(LINE_SEPARATOR);
-        builder.append("Subscribe, leave likes and comments");
+        builder.append("Subscribe, likes and comments thier content.");
         builder.append(LINE_SEPARATOR);
         builder.append("List of attendees:");
         builder.append(LINE_SEPARATOR);
