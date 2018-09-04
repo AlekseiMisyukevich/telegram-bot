@@ -35,7 +35,7 @@ public class Bot extends TelegramLongPollingBot {
     private final String TOKEN = "608768766:AAHk7FUNTIerYiCsYVsThpqAVog5ALRlLHU";
     private final String BOT_NAME = "doublegrambot";
     private final long DELAY = 7200;
-    private final String REPLIED_MSG_INDICATOR = "Greetings...";
+    private final String REPLIED_MSG_FLAG = "Greetings...";
     private volatile byte cnt;
 
     private RegistrationHandler registrationHandler;
@@ -57,35 +57,52 @@ public class Bot extends TelegramLongPollingBot {
         this.msgBuilder = new MessageBuilder(round);
         this.repo = new UserRepo();
         this.lock = new ReentrantLock();
-        this.cnt = 10;
+        this.cnt = 1;
         this.replyKeyboard = new RepleyKeyboardBuilder();
     }
 
-    /*@Override
+    /* @Override
     public BotApiMethod onWebhookUpdateReceived(Update update) {
-        if (update.hasMessage()) {
+        if (!update.hasCallbackQuery() && update.hasMessage() && !update.getMessage().isReply()) {
+
             String msg = update.getMessage().getText();
-            long chatID = update.getMessage().getChatId();
+            long chatId = update.getMessage().getChatId();
+            long userId = update.getMessage().getFrom().getId();
             String username = update.getMessage().getChat().getUserName();
-            if (!update.getMessage().getText().isEmpty()) {
-                sendMsg(msg, chatID, username);
+
+            if (!msg.isEmpty() && !username.isEmpty()) {
+                sendMsg(msg, chatId, userId, username);
+            } else {
+                return;
             }
-        } else if (update.getMessage().isReply()) {
+        } else if (!update.hasCallbackQuery() && update.getMessage().isReply() && update.getMessage().getReplyToMessage().getText().contains(REPLIED_MSG_INDICATOR)) {
+            System.out.println(update.getMessage().getReplyToMessage().getText());
+            User newUser = update.getMessage().getFrom();
+            final String msg = "startReply";
+            long userID = newUser.getId();
             long chatID = update.getMessage().getChatId();
-            String username = update.getMessage().getText();
-            registrationHandler.createNotification(chatID, username);
-            LOGGER.info(chatID + " " + username + " added.");
+            String firstName = newUser.getFirstName();
+            String lastName = newUser.getLastName();
+            String lang = newUser.getLanguageCode();
+            String username = update.getMessage().getChat().getUserName();
+            String instaName = update.getMessage().getText();
+
+            if (!username.isEmpty() && chatID != 0) {
+                sendMsg(msg, userID, chatID, firstName, lastName, lang, username, instaName);
+            } else {
+                return;
+            }
+
         } else if (update.hasCallbackQuery()) {
-            String callData = update.getCallbackQuery().getData();
-            long msgID = update.getCallbackQuery().getMessage().getMessageId();
-            long chatID = update.getCallbackQuery().getMessage().getChatId();
-            String username = update.getCallbackQuery().getFrom().getUserName();
-            if (!callData.isEmpty() && !username.isEmpty()) {
-                answerCallBack(callData, msgID, chatID, username);
+
+            if (!update.getCallbackQuery().getData().isEmpty()) {
+                answerCallBack(update);
+            } else {
+                return;
             }
         }
-        return  null;
     }*/
+
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -101,7 +118,7 @@ public class Bot extends TelegramLongPollingBot {
             } else {
                 return;
             }
-        } else if (!update.hasCallbackQuery() && update.getMessage().isReply() && update.getMessage().getReplyToMessage().getText().contains(REPLIED_MSG_INDICATOR)) {
+        } else if (!update.hasCallbackQuery() && update.getMessage().isReply() && update.getMessage().getReplyToMessage().getText().contains(REPLIED_MSG_FLAG)) {
             System.out.println(update.getMessage().getReplyToMessage().getText());
             User newUser = update.getMessage().getFrom();
             final String msg = "startReply";
@@ -402,7 +419,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(17).withMinute(30).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(23).withMinute(30).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -414,7 +431,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(18).withMinute(0).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(0).withMinute(0).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }
@@ -426,7 +443,7 @@ public class Bot extends TelegramLongPollingBot {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);
-        ZonedDateTime zonedStartTime = zonedNow.withHour(19).withMinute(00).withSecond(0).withNano(0);
+        ZonedDateTime zonedStartTime = zonedNow.withHour(1).withMinute(00).withSecond(0).withNano(0);
         if (zonedNow.compareTo(zonedStartTime) > 0) {
             zonedStartTime = zonedStartTime.plusDays(1);
         }

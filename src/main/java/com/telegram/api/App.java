@@ -18,7 +18,7 @@ public class App {
 
         TelegramBotsApi botapi = new TelegramBotsApi();
         Bot bot = new Bot();
-        
+
         try {
             botapi.registerBot(bot);
             bot.executeTasks();
